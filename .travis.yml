@@ -1,8 +1,17 @@
 language: node_js
 node_js:
-- stable
-- '6'
-- '4'
+- '10'
+services:
+  - postgresql
+before_script:
+  - psql -c 'CREATE DATABASE teamwork_test_db' -U postgres
+env:
+  global:
+    - DB_USER=postgres
+    - DB_NAME=teamwork_test_db
+    - DB_PORT=5432
+    - DB_PASSWORD=''
+    - DB_HOST=localhost
 deploy:
   provider: heroku
   api_key:
