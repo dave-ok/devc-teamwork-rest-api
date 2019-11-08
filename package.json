@@ -1,0 +1,24 @@
+{
+  "name": "devc-teamwork-rest-api",
+  "version": "1.0.0",
+  "description": "A REST API for teamwork, a team collaboration application",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dave-ok/devc-teamwork-rest-api.git"
+  },
+  "keywords": [
+    "devc",
+    "teamwork",
+    "rest-api"
+  ],
+  "author": "David Okanlawon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dave-ok/devc-teamwork-rest-api/issues"
+  },
+  "homepage": "https://github.com/dave-ok/devc-teamwork-rest-api#readme"
+}
