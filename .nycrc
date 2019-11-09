@@ -1,0 +1,12 @@
+{
+    "extends": "@istanbuljs/nyc-config-babel",
+    "sourceMap": false,
+    "instrument": false,
+    "require": [
+        "@babel/register"
+    ],
+    "exclude": [
+        "build/**",
+        "test/**"
+    ]
+}
