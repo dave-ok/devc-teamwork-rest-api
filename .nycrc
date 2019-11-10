@@ -7,6 +7,6 @@
     ],
     "exclude": [
         "build/**",
-        "test/**"
+        "tests/**"
     ]
 }
