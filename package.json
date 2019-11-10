@@ -4,8 +4,16 @@
   "description": "A REST API for teamwork, a team collaboration application",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "babel src --out-dir build --delete-dir-on-start",
+    "lint": "eslint src/** ",
+    "debug": "npm run test && npm run start",
+    "start": "NODE_ENV=dev nodemon --exec babel-node ./src/server.js",
+    "server": "NODE_ENV=production node ./build/server.js",
+    "test": "NODE_ENV=test nyc --reporter=text mocha",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "pretest": "npm run lint"
   },
+
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dave-ok/devc-teamwork-rest-api.git"
