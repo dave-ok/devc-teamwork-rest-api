@@ -1,0 +1,9 @@
+{
+    "plugins": [
+        "mocha"
+    ],
+    "extends": [
+        "airbnb-base",
+        "plugin:mocha/recommended"
+    ]
+}
