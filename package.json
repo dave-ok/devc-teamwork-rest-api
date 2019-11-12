@@ -9,7 +9,7 @@
     "testdev": "npm run test && npm run dev",
     "dev": "DEBUG=* NODE_ENV=dev nodemon --exec babel-node ./src/server.js",
     "start": "NODE_ENV=production node ./build/server.js",
-    "test": "NODE_ENV=test nyc --reporter=text mocha tests/**/*.test.js",
+    "test": "NODE_ENV=test nyc --reporter=text mocha \"tests/**/*.test.js\"",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "pretest": "npm run lint"
   },

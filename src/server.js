@@ -1,8 +1,8 @@
+import app from './api';
+
 const http = require('http');
-const app = require('./api');
 
 const server = http.createServer(app);
-
 const normalizePort = (val) => {
   const port = parseInt(val, 10);
 
