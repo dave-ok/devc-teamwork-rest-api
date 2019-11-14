@@ -1,4 +1,8 @@
+import envModule from 'custom-env';
 import app from './api';
+
+// load environment variables
+envModule.env(true);
 
 const http = require('http');
 
