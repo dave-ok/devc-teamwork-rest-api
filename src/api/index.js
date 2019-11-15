@@ -28,7 +28,7 @@ app.all('*', (req, res) => {
 });
 
 // default error handler
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   dispatchError(err, res);
 });
 

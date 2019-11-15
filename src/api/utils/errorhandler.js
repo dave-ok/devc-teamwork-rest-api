@@ -7,7 +7,8 @@ export class ErrorHandler extends Error {
 }
 
 export const dispatchError = (err, res) => {
-  let { status, message } = err;
+  let { status } = err;
+  const { message } = err;
 
   status = status || 500;
   res.status(status).json({
