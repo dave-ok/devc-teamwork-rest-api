@@ -2,21 +2,20 @@ language: node_js
 node_js:
 - '10'
 services:
-  - postgresql
+- postgresql
 before_script:
-  - psql -c 'CREATE DATABASE teamwork_test_db' -U postgres
+- psql -c 'CREATE DATABASE teamwork_test_db' -U postgres
 env:
   global:
-    - DB_USER=postgres
-    - DB_NAME=teamwork_test_db
-    - DB_PORT=5432
-    - DB_PASSWORD=''
-    - DB_HOST=localhost
+  - DB_USER=postgres
+  - DB_NAME=teamwork_test_db
+  - DB_PORT=5432
+  - DB_PASSWORD=''
+  - DB_HOST=localhost
 deploy:
   provider: heroku
   api_key:
-    secure: rZC1XZ56/utG8p1J8FSOUPlQvo77QTQUpL+PS4Hahb79rbElPYQB+UPoH8mXcLMRoxAM1XLLyAtOrZaXGOKE1E7gsjXLvFSLuAVSS+8mzDbyjbuHlXP3IPWfW60CdwNBZnZ2ovTNeCAgEy6mroduc2IQVIeHs/S55FiNUsm/MpOKxpmPf8KYGJ3WoyitohXmB1teANDUw/YN7mqm0y1r+EC+lK/rGhneCLFZP4AJeFt9CA9Z3WE60IuDrNeZ7MLbLpGIWBkVMGL2FLQf+VM4DJBrk3JVEjnkL65iqFXbkEhkArtTx4r4Hw1AcDXQ++EU0I8O0k7/liA3uz5YZ8wS+skkWRkgyj6yJ7kiOnSkyR2n4V00ogCktmc45sqk9A431k7L3oqghJwfSL5mFBjEG8z6xnw5SIgqnuydAwNFjI7TVOx6kTAu1VTp37V/Vyc/SsgOEfpbV53p0VT/TETEiAp2YktFHTy0qk/QyqC9N53pCYA68sYPLrrrQeoFiaxxlLr28TkcNPnD8QiRTu61vOsH6KMoqDIS45iTh9A04PnFchpZ/U78DqbiZLKFnr6xb+LeI/3fzMDZyZKvudCZAxf+oZqSXaM8Uk+UtO77WAMwjfM2VJKa8ciagU6jK1YcHVAArS+0oJrGpOmpy3V9v5BDEY7LULn0UbltmM8ppt8=
+    secure: CA1cfOFN/v7cCUlyuQ2vcnoGcCS03j2+XD9/Q0KLbnNNk0tbKsmaPZeFG45WaF6lanzxaTghFLzkGUFa6nMqeQ7SdYGl5ps5d3u23vNCTGRM2veM0LQZqrcTFcK7bB0c9W+DsmdBeWCBsVKtVShFCfOMg49GwtTRFrOrP9Sm4NhTnJwIuOJg+HFsKq/SS33CoEzFl6hftLVMyY2Gn3RmdBBxTTclOL2upGFPc1ZYNi+TPkb44hujctyZYFihf2I6T4v+7M1tkb4tGIXNex+CA5rcLWb73q7Ah+A353Nyau4CLT+9H+lBwnqVmbfun4Eky/KfBf68IqZOr9lbsEKZ7gJvc+Au5P96b8UjxdGmT7bu2xgQGfmadSaivfb00fkjA81HhGRdPUyD76bZ83o5fTd+2jzLmzU0M+ueNUs8x6RkrikxOFiktAcEtOy2PB02OhBN2YcOBsVc4N8gDknHyoymGhiBr9DqqixkDgAZ1zUgAN/+wPJumCcwihV6y49cMVGbqNGIlwQAmebc17DIE3aNwuyp4DlueuvGLDwixA8cde7skzyoRFaI9GEmLaEZeRJQYp0DB/gjA4zWNUUFw2lPPhsia8Panav4iNkfZAXIYAQg7YowBoYY4fd/8B1U+akUfAFLj6wCWksxd4uML1fsr0ufM9An/VuKNAv1uiY=
   app: devc-teamwork-rest-api
   on:
     repo: dave-ok/devc-teamwork-rest-api
-    branch: develop
