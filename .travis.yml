@@ -19,3 +19,4 @@ deploy:
   app: devc-teamwork-rest-api
   on:
     repo: dave-ok/devc-teamwork-rest-api
+    branch: develop
