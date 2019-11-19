@@ -24,7 +24,7 @@ export class MigrationRunner {
                 await db.query(CREATE_DB_VERSION_TABLE);                
             }
 
-            callback();
+            if (callback) { callback() };
                         
         }).bind(this, done)();
         
