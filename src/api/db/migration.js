@@ -1,9 +1,10 @@
 export default class Migration {
-    constructor(migrationid, objname, createsql, dropsql){
+    constructor(migrationid, objname, createsql, dropsql, seed){
         this.migrationid = migrationid;
         this.objname = objname;
         this.createsql = createsql;
         this.dropsql = dropsql;
+        this.seed = seed || '';
     }
 
     up(){

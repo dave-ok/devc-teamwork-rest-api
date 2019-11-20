@@ -1,33 +1,12 @@
 import db from ".";
 import { CREATE_MIGRATIONS_TABLE, CREATE_DB_VERSION_TABLE } from './sql/index';
 import Migration from "./migration";
+import { compareArrayObjects, isSubset, isEqualTo } from "../utils/compareItems";
 
 export class MigrationRunner {
-    constructor(migrations, client, done) {
+    constructor(migrations, client) {
         this.migrations = migrations;
-        this.client = client;
-
-        //run async initialization db functions in here
-        //create migrations table if it does not exist
-        //create db_version table
-        (async (callback) => {
-            //check if table exists 
-            let tablefound = await db.checkTableExists('migrations');            
-
-            if (tablefound == null) {
-                await db.query(CREATE_MIGRATIONS_TABLE);                
-            }
-
-            tablefound = await db.checkTableExists('db_version');            
-
-            if (tablefound == null) {
-                await db.query(CREATE_DB_VERSION_TABLE);                
-            }
-
-            if (callback) { callback() };
-                        
-        }).bind(this, done)();
-        
+        this.client = client;              
     }
 
     async createTables () {
@@ -43,16 +22,19 @@ export class MigrationRunner {
     }
 
     async clean(){ //clean migrations before run
+        //we only use this on tests never production DB
         await db.wipeDB('teamwork_test_db');
         await this.createTables();
         
     }
 
-    async init(clean){ // to be used before running migrations
-        if (clean) {
-           await clean(); 
+    async init(doCleanup){ // to be used before running migrations
+        if (doCleanup) {
+           await this.clean(); 
         }
         else {
+            await db.recreateSchema('public');
+            await this.createTables();
             await this.validateMigrations(false);
         }
 
@@ -70,7 +52,7 @@ export class MigrationRunner {
                  
                 //check db for for migration with current index
                 let qry = await db.query(
-                    `select migrationid, objname, createsql, dropsql
+                    `select migrationid, objname, createsql, dropsql, seed
                     from migrations where id = ${i}`
                 );
                 
@@ -78,8 +60,8 @@ export class MigrationRunner {
                 if(qry.rowCount >= 1) {
                     const dbMigration = qry.rows[0];
                     
-                    //compare both to see that they match
-                    const isMatched = compareArrayObjects(dbMigration, this.migrations[i]);
+                    //compare both to see that they match                   
+                    const isMatched = isEqualTo(dbMigration, this.migrations[i]);
                     
                     //if they don't throw an error   
                     if (!isMatched) {
@@ -92,7 +74,12 @@ export class MigrationRunner {
                 
                 //not found
                 //run the createsql migration
+                
+                console.log(`Creating ${this.migrations[i].objname} ...`);
                 await db.query(this.migrations[i].createsql);
+
+                console.log(`Seeding ${this.migrations[i].objname} ...`);
+                await db.query(this.migrations[i].seed);
 
                 //check that the object was created
                 let tablename = this.migrations[i].objname;
@@ -101,14 +88,15 @@ export class MigrationRunner {
 
                 //crete record in migrations table
                 await db.query(
-                    `insert into migrations(id, migrationid, objname, createsql, dropsql)
-                    values($1, $2, $3, $4, $5)`,
+                    `insert into migrations(id, migrationid, objname, createsql, dropsql, seed)
+                    values($1, $2, $3, $4, $5, $6)`,
                     [
                         i, 
                         this.migrations[i].migrationid, 
                         tablename, 
                         this.migrations[i].createsql,
-                        this.migrations[i].dropsql               
+                        this.migrations[i].dropsql,
+                        this.migrations[i].seed               
                     ]
                 );
 
@@ -183,7 +171,7 @@ export class MigrationRunner {
 
         //get db migrations
         const qry = await db.query(
-            `select migrationid, objname, createsql, dropsql
+            `select migrationid, objname, createsql, dropsql, seed
             from migrations
             order by id`
         );
@@ -193,14 +181,15 @@ export class MigrationRunner {
 
         //checkAll if items in array are exactly what is in migrations table in DB
         if(checkAll){
-            const isIdentical = compareArrayObjects(this.migrations, dbMigrations);
+            const isIdentical = isEqualTo(this.migrations, dbMigrations);
             if (!isIdentical) throw new Error('Server migrations do not match DB migrations'); 
         }
         //!checkAll if all items in migrations table are a subset of items in array
         else {
             //if dbmigrations is empty do nothing fresh db maybe
-            if (dbMigrations.length !== 0) {
-                const isIdentical = compareArrayObjects(this.migrations, dbMigrations, true);
+            if (dbMigrations.length !== 0) {                
+                //const isIdentical = compareArrayObjects(this.migrations, dbMigrations, true);
+                const isIdentical = isSubset(this.migrations, dbMigrations);
                 if (!isIdentical) throw new Error('DB migrations is not a subset of server migrations');                
             }
 

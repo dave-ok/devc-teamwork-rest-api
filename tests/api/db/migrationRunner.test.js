@@ -13,19 +13,23 @@ describe('Migration Runner', () => {
         let dbClient;
 
         before(async () => {
-            dbClient = await db.getClient();
+            
+            await db.wipeDB('teamwork_test_db');
+            dbClient = await db.getClient();   
+            
+            
         });
         
-        describe('when created', () => {  
-            
+        describe('when created', () => {             
             let migrationRunner; 
 
-            before((done) => {
+            before(() => {
                 const migrationsArray = [
                     new Migration('create_users_table', 'Users table', CREATE_TEST_1, DROP_TEST_1), 
                     new Migration('create_departments_table', 'Departments table', CREATE_TEST_2, DROP_TEST_2)
                 ];
-                migrationRunner = new MigrationRunner(migrationsArray, dbClient, done);
+
+                migrationRunner = new MigrationRunner(migrationsArray, dbClient);
 
             });
 
@@ -36,12 +40,28 @@ describe('Migration Runner', () => {
                 
             });   
             
-            //test that each item in array is a migration object, use instanceOf
-            
+            //test that each item in array is a migration object, use instanceOf            
             it('should have a database connection', () => {                                  
                 expect(migrationRunner).to.haveOwnProperty('client');
                 expect(migrationRunner.client).to.be.an('object'); 
             });
+        });
+        
+        describe('when migration run is initiated', () => {
+            let migrationRunner; 
+
+            before(async () => {
+                const migrationsArray = [
+                    new Migration('create_users_table', 'Users table', CREATE_TEST_1, DROP_TEST_1), 
+                    new Migration('create_departments_table', 'Departments table', CREATE_TEST_2, DROP_TEST_2)
+                ];
+
+
+                migrationRunner = new MigrationRunner(migrationsArray, dbClient);
+                await migrationRunner.init();
+
+            });
+
             it('migration table should be created if not exist', async () => {
                 const tablefound = await db.checkTableExists('migrations');                                
                 expect(tablefound).to.not.be.null;                                                          
@@ -52,20 +72,6 @@ describe('Migration Runner', () => {
                 expect(tablefound).to.not.be.null;
             });
 
-
-        });
-        
-        describe('when migration run is initiated', () => {
-            let migrationRunner; 
-
-            before((done) => {
-                const migrationsArray = [
-                    new Migration('create_users_table', 'Users table', CREATE_TEST_1, DROP_TEST_1), 
-                    new Migration('create_departments_table', 'Departments table', CREATE_TEST_2, DROP_TEST_2)
-                ];
-                migrationRunner = new MigrationRunner(migrationsArray, dbClient, done);
-
-            });
             it('should throw error if order of migrations in array dont match for db(without clean)', () => {
 
             });

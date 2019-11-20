@@ -4,8 +4,9 @@ CREATE TABLE migrations
     id integer NOT NULL,
     migrationid character varying(50) NOT NULL,
     objname character varying(50) NOT NULL,
-    createsql character varying(255) NOT NULL,
-    dropsql character varying(255) NOT NULL,
+    createsql character varying NOT NULL,
+    dropsql character varying NOT NULL,
+    seed character varying NOT NULL,
     CONSTRAINT migrations_pkey PRIMARY KEY (id),
     CONSTRAINT migrations_migrationid_key UNIQUE (migrationid)
 );
@@ -29,12 +30,13 @@ export const CREATE_SCHEMA_PUBLIC =
 `CREATE SCHEMA public
 AUTHORIZATION postgres;                
 GRANT ALL ON SCHEMA public TO postgres;
-GRANT ALL ON SCHEMA public TO public;`;
+GRANT ALL ON SCHEMA public TO public;
+SET search_path TO public`;
 
 export const CREATE_USERS_TABLE = 
 `CREATE TABLE public.users
 (
-  userid integer NOT NULL DEFAULT nextval('users_userid_seq'::regclass),
+  userid serial,
   firstname character varying(50) NOT NULL,
   lastname character varying(50) NOT NULL,
   email character varying(100) NOT NULL,
@@ -43,14 +45,14 @@ export const CREATE_USERS_TABLE =
   jobrole character varying(50) NOT NULL,
   department character varying(50) NOT NULL,
   address character varying NOT NULL,
-  is_admin boolean NOT NULL DEFAULT false,
   CONSTRAINT users_pkey PRIMARY KEY (userid),
   CONSTRAINT users_email_key UNIQUE (email),
   CONSTRAINT users_gender_check CHECK (gender = 'M'::bpchar OR gender = 'F'::bpchar)
 )
 WITH (
   OIDS=FALSE
-);`;
+);
+`;
 
 export const DROP_USERS_TABLE =
 `DROP TABLE public.users;`;
@@ -58,7 +60,7 @@ export const DROP_USERS_TABLE =
 export const CREATE_ARTICLES_TABLE =
 `CREATE TABLE public.articles
 (
-  articleid integer NOT NULL DEFAULT nextval('articles_articleid_seq'::regclass),
+  articleid serial,
   article character varying NOT NULL,
   title character varying(100) NOT NULL,
   date_created timestamp without time zone NOT NULL DEFAULT now(),
@@ -76,7 +78,7 @@ export const DROP_ARTICLES_TABLE =
 export const CREATE_GIFS_TABLE = 
 `CREATE TABLE public.gifs
 (
-  gifid integer NOT NULL DEFAULT nextval('gifs_gifid_seq'::regclass),
+  gifid serial,
   imageurl character varying NOT NULL,
   title character varying(100) NOT NULL,
   date_created timestamp without time zone NOT NULL DEFAULT now(),
@@ -92,7 +94,7 @@ export const DROP_GIFS_TABLE = `DROP TABLE public.gifs;`;
 export const CREATE_TAGS_TABLE = 
 `CREATE TABLE public.tags
 (
-  tagid integer NOT NULL DEFAULT nextval('tags_tagid_seq'::regclass),
+  tagid serial,
   tag character varying(50) NOT NULL,
   CONSTRAINT tags_pkey PRIMARY KEY (tagid)
 )
@@ -106,7 +108,7 @@ export const DROP_TAGS_TABLE = `DROP TABLE public.tags;`;
 export const CREATE_ARTICLE_COMMENTS_TABLE = 
 `CREATE TABLE public.articlecomments
 (
-  articlecommentid integer NOT NULL DEFAULT nextval('articlecomments_articlecommentid_seq'::regclass),
+  articlecommentid serial,
   articleid integer NOT NULL,
   userid integer NOT NULL,
   comment character varying(200) NOT NULL,
@@ -130,7 +132,7 @@ export const DROP_ARTICLE_COMMENTS_TABLE = `DROP TABLE public.articlecomments;`;
 export const CREATE_GIF_COMMENTS_TABLE = 
 `CREATE TABLE public.gifcomments
 (
-  gifcommentid integer NOT NULL DEFAULT nextval('gifcomments_gifcommentid_seq'::regclass),
+  gifcommentid serial,
   gifid integer NOT NULL,
   comment character varying(200) NOT NULL,
   datecreated timestamp without time zone NOT NULL DEFAULT now(),
@@ -153,7 +155,7 @@ export const DROP_GIF_COMMENTS_TABLE = `DROP TABLE public.gifcomments;`;
 export const CREATE_ARTICLE_TAGS_TABLE = 
 `CREATE TABLE public.articletags
 (
-  articletagid integer NOT NULL DEFAULT nextval('articletags_articletagid_seq'::regclass),
+  articletagid serial,
   articleid integer NOT NULL,
   tagid integer NOT NULL,
   CONSTRAINT articletags_pkey PRIMARY KEY (articletagid),
@@ -170,3 +172,38 @@ WITH (
 );
 `;
 export const DROP_ARTICLE_TAGS_TABLE = `DROP TABLE public.articletags;`;
+
+export const CREATE_ROLES_TABLE = 
+`CREATE TABLE public.roles
+(
+  roleid serial,
+  role character varying(30),
+  CONSTRAINT roles_pkey PRIMARY KEY (roleid),
+  CONSTRAINT roles_role_key UNIQUE (role)
+)
+WITH (
+  OIDS=FALSE
+);`;
+
+export const DROP_ROLES_TABLE = `DROP TABLE public.roles;`;
+
+export const CREATE_USER_ROLES_TABLE = 
+`CREATE TABLE public.userroles
+(
+  userroleid serial,
+  userid integer,
+  roleid integer,
+  CONSTRAINT userroles_pkey PRIMARY KEY (userroleid),
+  CONSTRAINT userroles_roleid_fkey FOREIGN KEY (roleid)
+      REFERENCES public.roles (roleid) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT userroles_userid_fkey FOREIGN KEY (userid)
+      REFERENCES public.users (userid) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT userroles_userid_roleid_key UNIQUE (userid, roleid)
+)
+WITH (
+  OIDS=FALSE
+);`;
+
+export const DROP_USER_ROLES_TABLE = `DROP TABLE public.userroles;`;

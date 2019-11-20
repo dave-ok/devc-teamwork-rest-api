@@ -1,8 +1,21 @@
 import envModule from 'custom-env';
 import app from './api';
+import { MigrationRunner } from './api/db/migrationRunner';
+import migrations from './api/db/migrations';
+import db from './api/db';
 
 // load environment variables
 envModule.env(true);
+
+//initialize db - run migrations in IIFE
+try {
+  (async () => {
+    const migrationRunner = new MigrationRunner(migrations, db.getClient);
+    migrationRunner.up();
+  })();
+} catch (error) {
+  console.log(error.message);
+}
 
 const http = require('http');
 
