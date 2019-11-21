@@ -25,16 +25,14 @@ WITH (
     OIDS=FALSE
 );
 INSERT INTO db_version(id) values(1);
-`
-export const CREATE_SCHEMA_PUBLIC = 
-`CREATE SCHEMA public
+`;
+export const CREATE_SCHEMA_PUBLIC = `CREATE SCHEMA public
 AUTHORIZATION postgres;                
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO public;
 SET search_path TO public`;
 
-export const CREATE_USERS_TABLE = 
-`CREATE TABLE public.users
+export const CREATE_USERS_TABLE = `CREATE TABLE public.users
 (
   userid serial,
   firstname character varying(50) NOT NULL,
@@ -54,11 +52,9 @@ WITH (
 );
 `;
 
-export const DROP_USERS_TABLE =
-`DROP TABLE public.users;`;
+export const DROP_USERS_TABLE = 'DROP TABLE public.users;';
 
-export const CREATE_ARTICLES_TABLE =
-`CREATE TABLE public.articles
+export const CREATE_ARTICLES_TABLE = `CREATE TABLE public.articles
 (
   articleid serial,
   article character varying NOT NULL,
@@ -70,13 +66,11 @@ export const CREATE_ARTICLES_TABLE =
 WITH (
   OIDS=FALSE
 );
-`
+`;
 
-export const DROP_ARTICLES_TABLE = 
-`DROP TABLE public.articles;`
+export const DROP_ARTICLES_TABLE = 'DROP TABLE public.articles;';
 
-export const CREATE_GIFS_TABLE = 
-`CREATE TABLE public.gifs
+export const CREATE_GIFS_TABLE = `CREATE TABLE public.gifs
 (
   gifid serial,
   imageurl character varying NOT NULL,
@@ -89,10 +83,9 @@ WITH (
   OIDS=FALSE
 );
 `;
-export const DROP_GIFS_TABLE = `DROP TABLE public.gifs;`;
+export const DROP_GIFS_TABLE = 'DROP TABLE public.gifs;';
 
-export const CREATE_TAGS_TABLE = 
-`CREATE TABLE public.tags
+export const CREATE_TAGS_TABLE = `CREATE TABLE public.tags
 (
   tagid serial,
   tag character varying(50) NOT NULL,
@@ -103,10 +96,9 @@ WITH (
 );
 `;
 
-export const DROP_TAGS_TABLE = `DROP TABLE public.tags;`;
+export const DROP_TAGS_TABLE = 'DROP TABLE public.tags;';
 
-export const CREATE_ARTICLE_COMMENTS_TABLE = 
-`CREATE TABLE public.articlecomments
+export const CREATE_ARTICLE_COMMENTS_TABLE = `CREATE TABLE public.articlecomments
 (
   articlecommentid serial,
   articleid integer NOT NULL,
@@ -127,10 +119,9 @@ WITH (
 );
 `;
 
-export const DROP_ARTICLE_COMMENTS_TABLE = `DROP TABLE public.articlecomments;`;
+export const DROP_ARTICLE_COMMENTS_TABLE = 'DROP TABLE public.articlecomments;';
 
-export const CREATE_GIF_COMMENTS_TABLE = 
-`CREATE TABLE public.gifcomments
+export const CREATE_GIF_COMMENTS_TABLE = `CREATE TABLE public.gifcomments
 (
   gifcommentid serial,
   gifid integer NOT NULL,
@@ -150,10 +141,9 @@ WITH (
   OIDS=FALSE
 );
 `;
-export const DROP_GIF_COMMENTS_TABLE = `DROP TABLE public.gifcomments;`;
+export const DROP_GIF_COMMENTS_TABLE = 'DROP TABLE public.gifcomments;';
 
-export const CREATE_ARTICLE_TAGS_TABLE = 
-`CREATE TABLE public.articletags
+export const CREATE_ARTICLE_TAGS_TABLE = `CREATE TABLE public.articletags
 (
   articletagid serial,
   articleid integer NOT NULL,
@@ -171,10 +161,9 @@ WITH (
   OIDS=FALSE
 );
 `;
-export const DROP_ARTICLE_TAGS_TABLE = `DROP TABLE public.articletags;`;
+export const DROP_ARTICLE_TAGS_TABLE = 'DROP TABLE public.articletags;';
 
-export const CREATE_ROLES_TABLE = 
-`CREATE TABLE public.roles
+export const CREATE_ROLES_TABLE = `CREATE TABLE public.roles
 (
   roleid serial,
   role character varying(30),
@@ -185,10 +174,9 @@ WITH (
   OIDS=FALSE
 );`;
 
-export const DROP_ROLES_TABLE = `DROP TABLE public.roles;`;
+export const DROP_ROLES_TABLE = 'DROP TABLE public.roles;';
 
-export const CREATE_USER_ROLES_TABLE = 
-`CREATE TABLE public.userroles
+export const CREATE_USER_ROLES_TABLE = `CREATE TABLE public.userroles
 (
   userroleid serial,
   userid integer,
@@ -206,4 +194,4 @@ WITH (
   OIDS=FALSE
 );`;
 
-export const DROP_USER_ROLES_TABLE = `DROP TABLE public.userroles;`;
+export const DROP_USER_ROLES_TABLE = 'DROP TABLE public.userroles;';

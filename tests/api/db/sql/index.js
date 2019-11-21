@@ -21,6 +21,6 @@ CREATE TABLE user_departments(
 );
 `;
 
-export const DROP_TEST_1 =`DROP TABLE users`;
-export const DROP_TEST_2 =`DROP TABLE departments`;
-export const DROP_TEST_3 =`DROP TABLE user_departments`;
+export const DROP_TEST_1 = 'DROP TABLE users';
+export const DROP_TEST_2 = 'DROP TABLE departments';
+export const DROP_TEST_3 = 'DROP TABLE user_departments';

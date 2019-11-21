@@ -7,7 +7,7 @@
         "airbnb-base"
     ],
     "parserOptions": {
-        "ecmaVersion": 6,
+        "ecmaVersion": 2017,
         "sourceType": "module"
     },
 
@@ -16,6 +16,8 @@
         "mocha": true
     },
     "rules": {
-        "mocha/no-mocha-arrows": "off"
+        "mocha/no-mocha-arrows": "off",
+        "no-await-in-loop": "off",
+        "no-unused-expressions": "off"
     }
 }

@@ -10,7 +10,7 @@
     "dev": "DEBUG=dev NODE_ENV=dev nodemon --exec babel-node ./src/server.js",
     "start": "NODE_ENV=production node ./build/server.js",
     "test": "NODE_ENV=test nyc --reporter=text mocha \"tests/**/*.test.js\"",
-    "test:nolint": "NODE_ENV=test nyc --reporter=text mocha \"tests/**/*.test.js\"",
+    "test:nolint": "NODE_ENV=test nyc --reporter=text --reporter=html mocha \"tests/**/*.test.js\"",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "pretest": "npm run lint"
   },
