@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "A REST API for teamwork, a team collaboration application",
   "main": "server.js",
+  "engines": {
+    "node": "10.16.3"
+  },
   "scripts": {
     "build": "babel src --out-dir build --delete-dir-on-start",
     "lint": "eslint --fix \"src/**\" \"tests/**\" ",
