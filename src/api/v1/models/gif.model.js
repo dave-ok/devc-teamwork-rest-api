@@ -11,7 +11,6 @@ export default class Gif extends DBModel {
     this.user_id = '';
     this.created_on = '';
     this.flagged = false;
-    
   }
 
   static pkfield() { return 'gif_id'; }
@@ -28,20 +27,20 @@ export default class Gif extends DBModel {
       'image_url',
       'title',
       'user_id',
-      'flagged'
+      'flagged',
     ];
   }
 
-  async flag(){
-    if(this.gif_id === -1) return false;
+  async flag() {
+    if (this.gif_id === -1) return false;
 
     this.flagged = true;
     await this.save();
     return true;
   }
 
-  async unflag(){
-    if(this.gif_id === -1) return false;
+  async unflag() {
+    if (this.gif_id === -1) return false;
 
     this.flagged = false;
     await this.save();
@@ -49,10 +48,9 @@ export default class Gif extends DBModel {
   }
 
   static async getGif(id) {
-    const result = await this.getbyId(id);      
-    result.comments = await GifComment.getByGifId(id);    
+    const result = await this.getbyId(id);
+    result.comments = await GifComment.getByGifId(id);
 
     return result;
   }
-  
 }

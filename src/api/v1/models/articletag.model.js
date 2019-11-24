@@ -6,7 +6,7 @@ export default class ArticleTag extends DBModel {
 
     this.article_tag_id = -1;
     this.article_id = '';
-    this.tag_id = '';    
+    this.tag_id = '';
   }
 
   static pkfield() { return 'article_tag_id'; }
@@ -21,15 +21,14 @@ export default class ArticleTag extends DBModel {
   static modifyFields() {
     return [
       'article_id',
-      'tag_id'
+      'tag_id',
     ];
   }
 
-  static async getbyArticleId(id){
+  static async getbyArticleId(id) {
     return this.getAll(
-        {article_id: id},
-        ['article_tag_id', 'tag_id', 'tag']
+      { article_id: id },
+      ['article_tag_id', 'tag_id', 'tag'],
     );
   }
-  
 }

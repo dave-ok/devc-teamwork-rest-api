@@ -4,19 +4,17 @@ import Gif from '../../../../src/api/v1/models/gif.model';
 import db from '../../../../src/api/db';
 
 describe('Gif model', () => {
-
   let lastGifId;
 
   before(async () => {
-    
     const result = await db.query(`
         insert into gifs(image_url, title, user_id) 
         values('first gif content', 'title', 1)
         returning gif_id;
     `);
 
-    lastGifId = result.rows[0].gif_id; 
-    
+    lastGifId = result.rows[0].gif_id;
+
     await db.query(`
         insert into gif_comments(gif_id, comment, user_id) 
         values(${lastGifId}, 'gif comment', 1);
@@ -25,7 +23,7 @@ describe('Gif model', () => {
         
     `);
   });
-  
+
   describe('Static methods', () => {
     describe('when pkField is called', () => {
       it('should return "gifid"', () => {
@@ -57,54 +55,53 @@ describe('Gif model', () => {
 
   describe('Instance methods', () => {
     describe('when new gif is created', () => {
-        let gif;
-        beforeEach(() => {
-            gif = new Gif();
-            gif.image_url = 'content';
-            gif.title = 'first gif';
-            gif.user_id = 1;
-        });
-        it('should have all specifed fields', () => {
-            expect(gif).to.haveOwnProperty('gif_id');
-            expect(gif).to.haveOwnProperty('image_url');
-            expect(gif).to.haveOwnProperty('title');
-            expect(gif).to.haveOwnProperty('user_id');
-            expect(gif).to.haveOwnProperty('flagged');
-            expect(gif).to.haveOwnProperty('created_on');            
-        });
+      let gif;
+      beforeEach(() => {
+        gif = new Gif();
+        gif.image_url = 'content';
+        gif.title = 'first gif';
+        gif.user_id = 1;
+      });
+      it('should have all specifed fields', () => {
+        expect(gif).to.haveOwnProperty('gif_id');
+        expect(gif).to.haveOwnProperty('image_url');
+        expect(gif).to.haveOwnProperty('title');
+        expect(gif).to.haveOwnProperty('user_id');
+        expect(gif).to.haveOwnProperty('flagged');
+        expect(gif).to.haveOwnProperty('created_on');
+      });
 
-        it('setting flagged field should be ignored', async () => {
-            expect(await gif.flag()).to.be.false;
-            expect(await gif.unflag()).to.be.false;
-        });
+      it('setting flagged field should be ignored', async () => {
+        expect(await gif.flag()).to.be.false;
+        expect(await gif.unflag()).to.be.false;
+      });
 
-        describe('after record is created in DB and flag method is called', () => {            
-            it('should be flagged in DB and locally', async () => {
-                await gif.save();                
-                const success = await gif.flag();                
-                const dbRec = await Gif.getbyId(gif.gif_id);
-                
-                expect(gif.flagged).to.be.true;
-                expect(success).to.be.true;
-                expect(dbRec.flagged).to.be.true;
-            });
-        });
+      describe('after record is created in DB and flag method is called', () => {
+        it('should be flagged in DB and locally', async () => {
+          await gif.save();
+          const success = await gif.flag();
+          const dbRec = await Gif.getbyId(gif.gif_id);
 
-        describe('after record is created in DB and unflag method is called', () => {            
-            it('should be unflagged in DB and locally', async () => {
-                await gif.save();
-                const success = await gif.unflag();
-                const dbRec = await Gif.getbyId(gif.gif_id);
-                expect(gif.flagged).to.be.false;
-                expect(success).to.be.true;
-                expect(dbRec.flagged).to.be.false;
-            });
+          expect(gif.flagged).to.be.true;
+          expect(success).to.be.true;
+          expect(dbRec.flagged).to.be.true;
         });
+      });
+
+      describe('after record is created in DB and unflag method is called', () => {
+        it('should be unflagged in DB and locally', async () => {
+          await gif.save();
+          const success = await gif.unflag();
+          const dbRec = await Gif.getbyId(gif.gif_id);
+          expect(gif.flagged).to.be.false;
+          expect(success).to.be.true;
+          expect(dbRec.flagged).to.be.false;
+        });
+      });
     });
   });
 
   after(async () => {
     await db.query('delete from gifs');
   });
-  
 });

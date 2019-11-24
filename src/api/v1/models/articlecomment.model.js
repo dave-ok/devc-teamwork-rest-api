@@ -10,7 +10,6 @@ export default class ArticleComment extends DBModel {
     this.comment = '';
     this.created_on = '';
     this.flagged = false;
-    
   }
 
   static pkfield() { return 'article_comment_id'; }
@@ -27,35 +26,34 @@ export default class ArticleComment extends DBModel {
       'article_id',
       'user_id',
       'comment',
-      'flagged'
+      'flagged',
     ];
   }
 
-  async flag(){
-    if(this.article_comment_id === -1) return false;
+  async flag() {
+    if (this.article_comment_id === -1) return false;
 
     this.flagged = true;
     await this.save();
     return true;
   }
 
-  async unflag(){
-    if(this.article_comment_id === -1) return false;
+  async unflag() {
+    if (this.article_comment_id === -1) return false;
 
     this.flagged = false;
     await this.save();
     return true;
   }
 
-  static async getByArticleId(id){
+  static async getByArticleId(id) {
     return this.getAll(
-      {article_id: id}, 
+      { article_id: id },
       [
-        'article_comment_id', 'comment', 'user_id', 
-        'created_on', 'flagged', 'author_name', 
-        'email', 'department'
-      ]
+        'article_comment_id', 'comment', 'user_id',
+        'created_on', 'flagged', 'author_name',
+        'email', 'department',
+      ],
     );
-  }  
-  
+  }
 }

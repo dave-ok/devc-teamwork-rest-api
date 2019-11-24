@@ -20,7 +20,7 @@ export default class Tag extends DBModel {
   // fields to be written to
   static modifyFields() {
     return [
-      'tag'
+      'tag',
     ];
   }
 }

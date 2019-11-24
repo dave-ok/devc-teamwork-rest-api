@@ -4,7 +4,7 @@ import MigrationRunner from '../../../src/api/db/migrationRunner';
 
 import Migration from '../../../src/api/db/migration';
 import {
-  CREATE_TEST_1, DROP_TEST_1, CREATE_TEST_2, DROP_TEST_2
+  CREATE_TEST_1, DROP_TEST_1, CREATE_TEST_2, DROP_TEST_2,
 } from './sql';
 
 describe('Migration Runner', () => {
@@ -107,7 +107,6 @@ describe('Migration Runner', () => {
 
     after(() => {
       dbClient.release();
-
     });
   });
 });

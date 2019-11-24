@@ -20,7 +20,7 @@ export default class Role extends DBModel {
   // fields to be written to
   static modifyFields() {
     return [
-      'role'
+      'role',
     ];
   }
 }

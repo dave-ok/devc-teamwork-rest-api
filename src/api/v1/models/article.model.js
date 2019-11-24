@@ -12,7 +12,6 @@ export default class Article extends DBModel {
     this.user_id = '';
     this.created_on = '';
     this.flagged = false;
-    
   }
 
   static pkfield() { return 'article_id'; }
@@ -29,20 +28,20 @@ export default class Article extends DBModel {
       'article',
       'title',
       'user_id',
-      'flagged'
+      'flagged',
     ];
   }
 
-  async flag(){
-    if(this.article_id === -1) return false;
+  async flag() {
+    if (this.article_id === -1) return false;
 
     this.flagged = true;
     await this.save();
     return true;
   }
 
-  async unflag(){
-    if(this.article_id === -1) return false;
+  async unflag() {
+    if (this.article_id === -1) return false;
 
     this.flagged = false;
     await this.save();
@@ -51,25 +50,23 @@ export default class Article extends DBModel {
 
   static async getArticle(id) {
     const result = await this.getbyId(id);
-    if(result){
+    if (result) {
       try {
         result.comments = await ArticleComment.getByArticleId(id);
       } catch (error) {
-        if(error.message.indexOf('object not found') < 0){
+        if (error.message.indexOf('object not found') < 0) {
           throw error;
         }
       }
       try {
         result.tags = await ArticleTag.getbyArticleId(id);
       } catch (error) {
-        if(error.message.indexOf('object not found') < 0){
+        if (error.message.indexOf('object not found') < 0) {
           throw error;
         }
       }
-      
     }
 
     return result;
   }
-
 }

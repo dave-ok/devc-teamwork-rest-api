@@ -41,11 +41,11 @@ export default class User extends DBModel {
   static async getbyIdWithPermissions(id) {
     const result = await this.getbyId(id);
 
-    if(result){
+    if (result) {
       const roles = await UserRole.getbyUserId(id);
 
-      if(roles){
-        //iterate through array and get all values into array
+      if (roles) {
+        // iterate through array and get all values into array
         const permissions = roles.reduce((perms, record) => {
           perms.push(record.role);
           return perms;
@@ -53,10 +53,8 @@ export default class User extends DBModel {
 
         result.permissions = permissions;
       }
-            
     }
 
     return result;
-
   }
 }

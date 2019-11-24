@@ -1,10 +1,8 @@
 
 import { expect } from 'chai';
 import User from '../../../../src/api/v1/models/user.model';
-import db from '../../../../src/api/db';
 
-describe('User model', () => {  
-
+describe('User model', () => {
   describe('Static methods', () => {
     describe('when pkField is called', () => {
       it('should return "userid"', () => {
@@ -36,21 +34,21 @@ describe('User model', () => {
 
   describe('Instance methods', () => {
     describe('when new user is created', () => {
-        let user;
-        before(() => {
-            user = new User();
-        });
-        it('should have all specifed fields', () => {
-            expect(user).to.haveOwnProperty('user_id');
-            expect(user).to.haveOwnProperty('first_name');
-            expect(user).to.haveOwnProperty('last_name');
-            expect(user).to.haveOwnProperty('email');
-            expect(user).to.haveOwnProperty('password');
-            expect(user).to.haveOwnProperty('gender');
-            expect(user).to.haveOwnProperty('department');
-            expect(user).to.haveOwnProperty('job_role');
-            expect(user).to.haveOwnProperty('address');
-        })
+      let user;
+      before(() => {
+        user = new User();
+      });
+      it('should have all specifed fields', () => {
+        expect(user).to.haveOwnProperty('user_id');
+        expect(user).to.haveOwnProperty('first_name');
+        expect(user).to.haveOwnProperty('last_name');
+        expect(user).to.haveOwnProperty('email');
+        expect(user).to.haveOwnProperty('password');
+        expect(user).to.haveOwnProperty('gender');
+        expect(user).to.haveOwnProperty('department');
+        expect(user).to.haveOwnProperty('job_role');
+        expect(user).to.haveOwnProperty('address');
+      });
     });
   });
 });

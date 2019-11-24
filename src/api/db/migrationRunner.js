@@ -11,39 +11,34 @@ export default class MigrationRunner {
     this.initialSchema = '';
   }
 
-  async switchDefaultSchema(schema) {
-    //find schema in search_path and replace with ''
-    let result = await db.query(`select current_setting('search_path') as search_path`);
-    let search_path = result.rows[0].search_path;
-    
-    let currentPath = search_path.split(',');
+  static async switchDefaultSchema(schema) {
+    // find schema in searchPath and replace with ''
+    const result = await db.query('select current_setting(\'search_path\') as search_path');
+    let searchPath = result.rows[0].search_path;
+
+    const currentPath = searchPath.split(',');
     const oldDefault = currentPath[0];
 
     const schemaIndex = currentPath.indexOf(schema);
 
-    //if scema not in search_path put at beginning
-    if(schemaIndex < 0){
+    // if scema not in searchPath put at beginning
+    if (schemaIndex < 0) {
       currentPath.unshift(schema);
-      search_path = currentPath.join(',');
-    }
-    else if(schemaIndex > 0){
-      //if found in middle remove and place at beginning
+      searchPath = currentPath.join(',');
+    } else if (schemaIndex > 0) {
+      // if found in middle remove and place at beginning
       currentPath.splice(schemaIndex, 1);
       currentPath.unshift(schema);
-      search_path = currentPath.join(',');
+      searchPath = currentPath.join(',');
     }
 
-    //set default schema
-    await db.query(`select set_config('search_path','${search_path}', false)`);
+    // set default schema
+    await db.query(`select set_config('search_path','${searchPath}', false)`);
 
     return oldDefault;
-
   }
 
   async createTables() {
-    
-    const result = await db.query('select current_schema() as current_schema;');    
-
     let tablefound = await db.checkTableExists('migrations', this.schemaName);
     if (tablefound == null) {
       console.log('Creating migrations table');
@@ -64,8 +59,8 @@ export default class MigrationRunner {
   }
 
   async init(doCleanup) { // to be used before running migrations
-    //set default
-    const oldSchema = await this.switchDefaultSchema(this.schemaName);
+    // set default
+    const oldSchema = await MigrationRunner.switchDefaultSchema(this.schemaName);
     try {
       if (doCleanup) {
         await this.clean();
@@ -73,20 +68,19 @@ export default class MigrationRunner {
         await db.recreateMissingSchema(this.schemaName);
         await this.createTables();
         await this.validateMigrations(false);
-      }  
-      
+      }
     } finally {
-      await this.switchDefaultSchema(oldSchema);
-    }   
+      await MigrationRunner.switchDefaultSchema(oldSchema);
+    }
 
-    //add schema to search_path
+    // add schema to searchPath
   }
 
   async up(forceClean = false) {
     // initialize runner
     await this.init(forceClean);
 
-    const oldSchema = await this.switchDefaultSchema(this.schemaName);
+    const oldSchema = await MigrationRunner.switchDefaultSchema(this.schemaName);
 
     // start transaction
     await db.query('BEGIN');
@@ -157,13 +151,12 @@ export default class MigrationRunner {
       console.log('Migration up failed - transaction rolled back');
       console.error(error.message);
     } finally {
-      await this.switchDefaultSchema(oldSchema);
+      await MigrationRunner.switchDefaultSchema(oldSchema);
     }
-
   }
 
   async down(toIndex = 0) {
-    const oldSchema = await this.switchDefaultSchema(this.schemaName);
+    const oldSchema = await MigrationRunner.switchDefaultSchema(this.schemaName);
 
     await db.query('BEGIN');
     try {
@@ -181,8 +174,8 @@ export default class MigrationRunner {
       for (let i = 0; i < dbMigrations.length; i += 1) {
         // run dropsql
         await db.query(dbMigrations[i].dropsql);
-        
-        // check if object was dropped        
+
+        // check if object was dropped
         const tablename = dbMigrations[i].objname;
         console.log(`Dropped ${tablename}`);
 
@@ -209,7 +202,7 @@ export default class MigrationRunner {
       console.log('Migration down failed - transaction rolled back');
       console.error(error.message);
     } finally {
-      await this.switchDefaultSchema(oldSchema);
+      await MigrationRunner.switchDefaultSchema(oldSchema);
     }
   }
 

@@ -22,14 +22,14 @@ export default class UserRole extends DBModel {
   static modifyFields() {
     return [
       'role_id',
-      'user_id'
+      'user_id',
     ];
   }
 
-  static async getbyUserId(id){    
+  static async getbyUserId(id) {
     return this.getAll(
-      {user_id: id},
-      ['role_id', 'role']
+      { user_id: id },
+      ['role_id', 'role'],
     );
   }
 }

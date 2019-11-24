@@ -18,6 +18,7 @@
     "rules": {
         "mocha/no-mocha-arrows": "off",
         "no-await-in-loop": "off",
-        "no-unused-expressions": "off"
+        "no-unused-expressions": "off",
+        "no-console": "off"
     }
 }

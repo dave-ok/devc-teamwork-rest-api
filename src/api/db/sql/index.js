@@ -215,7 +215,7 @@ CREATE OR REPLACE VIEW public.vw_articles AS
   WHERE articles.user_id = users.user_id;
 `;
 
-export const DROP_VW_ARTICLES = `DROP VIEW public.vw_articles`;
+export const DROP_VW_ARTICLES = 'DROP VIEW public.vw_articles';
 
 export const CREATE_VW_GIFS = `
 CREATE OR REPLACE VIEW public.vw_gifs AS 
@@ -233,7 +233,7 @@ CREATE OR REPLACE VIEW public.vw_gifs AS
   WHERE gifs.user_id = users.user_id;
 `;
 
-export const DROP_VW_GIFS = `DROP VIEW public.vw_gifs;`;
+export const DROP_VW_GIFS = 'DROP VIEW public.vw_gifs;';
 
 export const CREATE_VW_USERS = `
 CREATE OR REPLACE VIEW public.vw_users AS 
@@ -251,7 +251,7 @@ CREATE OR REPLACE VIEW public.vw_users AS
    FROM users;
 `;
 
-export const DROP_VW_USERS = `DROP VIEW public.vw_users;`;
+export const DROP_VW_USERS = 'DROP VIEW public.vw_users;';
 
 export const CREATE_VW_GIF_COMMENTS = `
 CREATE OR REPLACE VIEW public.vw_gif_comments AS 
@@ -274,7 +274,7 @@ CREATE OR REPLACE VIEW public.vw_gif_comments AS
 
 `;
 
-export const DROP_VW_GIF_COMMENTS = `DROP VIEW public.vw_gif_comments;`;
+export const DROP_VW_GIF_COMMENTS = 'DROP VIEW public.vw_gif_comments;';
 
 export const CREATE_VW_ARTICLE_COMMENTS = `
 CREATE OR REPLACE VIEW public.vw_article_comments AS 
@@ -296,7 +296,7 @@ CREATE OR REPLACE VIEW public.vw_article_comments AS
   WHERE vw_users.user_id = article_comments.user_id;
 `;
 
-export const DROP_VW_ARTICLE_COMMENTS = `DROP VIEW public.vw_article_comments;`;
+export const DROP_VW_ARTICLE_COMMENTS = 'DROP VIEW public.vw_article_comments;';
 
 export const CREATE_VW_ARTICLE_TAGS = `
 CREATE OR REPLACE VIEW public.vw_article_tags AS 
@@ -317,7 +317,7 @@ CREATE OR REPLACE VIEW public.vw_article_tags AS
   WHERE tags.tag_id = article_tags.tag_id AND vw_articles.article_id = article_tags.article_id;
 `;
 
-export const DROP_VW_ARTICLE_TAGS = `DROP VIEW public.vw_article_tags;`;
+export const DROP_VW_ARTICLE_TAGS = 'DROP VIEW public.vw_article_tags;';
 
 export const CREATE_VW_USER_ROLES = `
 CREATE OR REPLACE VIEW public.vw_user_roles AS 
@@ -334,4 +334,4 @@ CREATE OR REPLACE VIEW public.vw_user_roles AS
   WHERE vw_users.user_id = user_roles.user_id AND roles.role_id = user_roles.role_id;
 `;
 
-export const DROP_VW_USER_ROLES = `DROP VIEW public.vw_user_roles;`;
+export const DROP_VW_USER_ROLES = 'DROP VIEW public.vw_user_roles;';

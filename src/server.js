@@ -9,18 +9,17 @@ envModule.env(true);
 
 // initialize db - run migrations in IIFE
 try {
-  
   (async () => {
     const migrationRunner = new MigrationRunner(migrations, db.getClient, 'public');
-    
-    if(process.env.MIG_DOWN === '1'){
-      //run migration down first
-      
+
+    if (process.env.MIG_DOWN === '1') {
+      // run migration down first
+
       console.log('Migrating Down');
       await migrationRunner.down();
     }
 
-   await migrationRunner.up();
+    await migrationRunner.up();
   })();
 } catch (error) {
   console.log(error.message);

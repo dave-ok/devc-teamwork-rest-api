@@ -50,8 +50,8 @@ const db = {
     const schemaExists = result.rows[0].schemafound;
 
     if (!schemaExists) {
-      await client.query(`CREATE SCHEMA ${schemaName}`);
-      console.log(`${schemaName} schema not found, created!`);
+      await client.query(`CREATE SCHEMA ${schema}`);
+      console.log(`${schema} schema not found, created!`);
     }
 
     await client.release();

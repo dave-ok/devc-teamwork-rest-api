@@ -1,37 +1,33 @@
-import db from "../src/api/db";
 import customEnv from 'custom-env';
-import MigrationRunner from "../src/api/db/migrationRunner";
+import db from '../src/api/db';
+import MigrationRunner from '../src/api/db/migrationRunner';
 import migrations from '../src/api/db/migrations';
-import { testTablesSeed } from "./api/db/sql";
+import { testTablesSeed } from './api/db/sql';
 
-//global hooks before running all tests
-before(async function(){
-    //set longer timeout for DB operations
-    this.timeout(10000);
+// global hooks before running all tests
+before(async function initDb() {
+  // set longer timeout for DB operations
+  this.timeout(10000);
 
-    let dbClient;
+  let dbClient;
 
-    try {
-        //initialize environment vars
-        customEnv.env('test');
+  try {
+    // initialize environment vars
+    customEnv.env('test');
 
-        //get a client connection to DB
-        dbClient = await db.getClient();
-        
-        //create migrationRunner to run migrations
-        const migrationRunner = new MigrationRunner(migrations, dbClient, 'public');
+    // get a client connection to DB
+    dbClient = await db.getClient();
 
-        //run down migration to clear DB and up to recreate DB
-        await migrationRunner.down();
-        await migrationRunner.up(true);
+    // create migrationRunner to run migrations
+    const migrationRunner = new MigrationRunner(migrations, dbClient, 'public');
 
-        //run custom script to seed DB for test
-        await dbClient.query(testTablesSeed);
+    // run down migration to clear DB and up to recreate DB
+    await migrationRunner.down();
+    await migrationRunner.up(true);
 
-    } finally{
-        await dbClient.release();   
-    }
-    
-
+    // run custom script to seed DB for test
+    await dbClient.query(testTablesSeed);
+  } finally {
+    await dbClient.release();
+  }
 });
-

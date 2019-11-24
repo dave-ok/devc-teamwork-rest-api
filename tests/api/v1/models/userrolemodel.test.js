@@ -2,8 +2,7 @@
 import { expect } from 'chai';
 import UserRole from '../../../../src/api/v1/models/userrole.model';
 
-describe('UserRole model', () => {  
-
+describe('UserRole model', () => {
   describe('Static methods', () => {
     describe('when pkField is called', () => {
       it('should return "user_role_id"', () => {
@@ -34,16 +33,16 @@ describe('UserRole model', () => {
   });
 
   describe('Instance methods', () => {
-    describe('when new user_role is created', () => {
-        let user_role;
-        before(() => {
-            user_role = new UserRole();
-        });
-        it('should have all specifed fields', () => {
-            expect(user_role).to.haveOwnProperty('user_role_id');
-            expect(user_role).to.haveOwnProperty('user_id');
-            expect(user_role).to.haveOwnProperty('role_id');
-        })
+    describe('when new userRole is created', () => {
+      let userRole;
+      before(() => {
+        userRole = new UserRole();
+      });
+      it('should have all specifed fields', () => {
+        expect(userRole).to.haveOwnProperty('user_role_id');
+        expect(userRole).to.haveOwnProperty('user_id');
+        expect(userRole).to.haveOwnProperty('role_id');
+      });
     });
   });
 });
