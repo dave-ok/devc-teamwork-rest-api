@@ -4,7 +4,7 @@ import MigrationRunner from '../../../src/api/db/migrationRunner';
 
 import Migration from '../../../src/api/db/migration';
 import {
-  CREATE_TEST_1, DROP_TEST_1, CREATE_TEST_2, DROP_TEST_2,
+  CREATE_TEST_1, DROP_TEST_1, CREATE_TEST_2, DROP_TEST_2
 } from './sql';
 
 describe('Migration Runner', () => {
@@ -12,7 +12,7 @@ describe('Migration Runner', () => {
     let dbClient;
 
     before(async () => {
-      await db.wipeDB('teamwork_test_db');
+      await db.wipeDB('teamwork_test_db', 'test');
       dbClient = await db.getClient();
     });
 
@@ -25,7 +25,7 @@ describe('Migration Runner', () => {
           new Migration('create_departments_table', 'Departments table', CREATE_TEST_2, DROP_TEST_2),
         ];
 
-        migrationRunner = new MigrationRunner(migrationsArray, dbClient);
+        migrationRunner = new MigrationRunner(migrationsArray, dbClient, 'test');
       });
 
       it('should have property migrations which is a non-empty array', () => {
@@ -50,17 +50,17 @@ describe('Migration Runner', () => {
         ];
 
 
-        migrationRunner = new MigrationRunner(migrationsArray, dbClient);
-        await migrationRunner.init();
+        migrationRunner = new MigrationRunner(migrationsArray, dbClient, 'test');
+        await migrationRunner.init(true);
       });
 
       it('migration table should be created if not exist', async () => {
-        const tablefound = await db.checkTableExists('migrations');
+        const tablefound = await db.checkTableExists('migrations', 'test');
         expect(tablefound).to.not.be.null;
       });
 
       it('db_version table should exist', async () => {
-        const tablefound = await db.checkTableExists('db_version');
+        const tablefound = await db.checkTableExists('db_version', 'test');
         expect(tablefound).to.not.be.null;
       });
 
@@ -107,7 +107,7 @@ describe('Migration Runner', () => {
 
     after(() => {
       dbClient.release();
-      db.wipeDB('teamwork_test_db');
+
     });
   });
 });

@@ -1,5 +1,4 @@
 import customEnv from 'custom-env';
-import { CREATE_SCHEMA_PUBLIC } from './sql/index';
 
 customEnv.env(true);
 
@@ -19,8 +18,8 @@ const db = {
 
   getClient: async () => pool.connect(),
 
-  checkTableExists: async (tablename) => {
-    const queryString = `SELECT to_regclass('public.${tablename}') as tablefound`;
+  checkTableExists: async (tablename, schema = 'public') => {
+    const queryString = `SELECT to_regclass('${schema}.${tablename}') as tablefound`;
 
     const result = await pool.query(queryString);
     return result.rows[0].tablefound;
@@ -40,7 +39,7 @@ const db = {
     return result.rows[0].schemafound;
   },
 
-  recreateSchema: async (schema) => {
+  recreateMissingSchema: async (schema = 'public') => {
     const client = await pool.connect();
 
     const queryString = `SELECT EXISTS (SELECT schema_name 
@@ -51,8 +50,8 @@ const db = {
     const schemaExists = result.rows[0].schemafound;
 
     if (!schemaExists) {
-      await client.query(CREATE_SCHEMA_PUBLIC);
-      console.log('Public schema not found, created!');
+      await client.query(`CREATE SCHEMA ${schemaName}`);
+      console.log(`${schemaName} schema not found, created!`);
     }
 
     await client.release();
@@ -60,7 +59,7 @@ const db = {
     return true;
   },
 
-  wipeDB: async (dbname) => {
+  wipeDB: async (dbname, schemaName) => {
     // sensitive operation pass dbName to be sure
     if (dbname !== process.env.DB_NAME) {
       return false;
@@ -70,19 +69,19 @@ const db = {
 
     const queryString = `SELECT EXISTS (SELECT schema_name 
         FROM information_schema.schemata 
-        WHERE schema_name = 'public') as schemafound;`;
+        WHERE schema_name = '${schemaName}') as schemafound;`;
 
     const result = await pool.query(queryString);
     const schemaExists = result.rows[0].schemafound;
 
     if (schemaExists) {
-      await client.query('DROP SCHEMA public CASCADE');
+      await client.query(`DROP SCHEMA ${schemaName} CASCADE`);
     }
 
-    await client.query(CREATE_SCHEMA_PUBLIC);
+    await client.query(`CREATE SCHEMA ${schemaName};`);
     await client.release();
 
-    console.log('PUBLIC schema recreated!');
+    console.log(`${schemaName} schema recreated!`);
 
     return true;
   },

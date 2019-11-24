@@ -1,7 +1,11 @@
-export const isEqualTo = (item1, item2) => JSON.stringify(item1) === JSON.stringify(item2);
+export const isEqualTo = (item1, item2) => {
+  //dummy line
+  return JSON.stringify(item1).replace(/\n/g, '') === JSON.stringify(item2).replace(/\n/g, '');
+}
 
 export const isSubset = (haystack, needle) => {
-  const strHaystack = JSON.stringify(haystack);
-  const strNeedle = JSON.stringify(needle);
+  let strHaystack = JSON.stringify(haystack);
+  let strNeedle = JSON.stringify(needle).slice(1, -1); //remove leading and trailing []
+
   return strHaystack.indexOf(strNeedle) >= 0;
 };

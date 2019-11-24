@@ -4,42 +4,91 @@ import Migration from './migration';
 import { isSubset, isEqualTo } from '../utils/compareItems';
 
 export default class MigrationRunner {
-  constructor(migrations, client) {
+  constructor(migrations, client, schemaName) {
     this.migrations = migrations;
     this.client = client;
+    this.schemaName = schemaName;
+    this.initialSchema = '';
   }
 
-  static async createTables() {
-    let tablefound = await db.checkTableExists('migrations');
+  async switchDefaultSchema(schema) {
+    //find schema in search_path and replace with ''
+    let result = await db.query(`select current_setting('search_path') as search_path`);
+    let search_path = result.rows[0].search_path;
+    
+    let currentPath = search_path.split(',');
+    const oldDefault = currentPath[0];
+
+    const schemaIndex = currentPath.indexOf(schema);
+
+    //if scema not in search_path put at beginning
+    if(schemaIndex < 0){
+      currentPath.unshift(schema);
+      search_path = currentPath.join(',');
+    }
+    else if(schemaIndex > 0){
+      //if found in middle remove and place at beginning
+      currentPath.splice(schemaIndex, 1);
+      currentPath.unshift(schema);
+      search_path = currentPath.join(',');
+    }
+
+    //set default schema
+    await db.query(`select set_config('search_path','${search_path}', false)`);
+
+    return oldDefault;
+
+  }
+
+  async createTables() {
+    console.log('initiating migrations and db_version');
+
+    const result = await db.query('select current_schema() as current_schema;');
+    console.log(`current schema is ${result.rows[0].current_schema}`);
+
+    let tablefound = await db.checkTableExists('migrations', this.schemaName);
     if (tablefound == null) {
+      console.log('creating migrations table');
       await db.query(CREATE_MIGRATIONS_TABLE);
     }
 
-    tablefound = await db.checkTableExists('db_version');
+    tablefound = await db.checkTableExists('db_version', this.schemaName);
     if (tablefound == null) {
+      console.log('creating versions table');
       await db.query(CREATE_DB_VERSION_TABLE);
     }
   }
 
-  static async clean() { // clean migrations before run
+  async clean() { // clean migrations before run
     // we only use this on tests never production DB
-    await db.wipeDB('teamwork_test_db');
-    await MigrationRunner.createTables();
+    await db.wipeDB('teamwork_test_db', this.schemaName);
+    await this.createTables();
   }
 
   async init(doCleanup) { // to be used before running migrations
-    if (doCleanup) {
-      await MigrationRunner.clean();
-    } else {
-      await db.recreateSchema('public');
-      await MigrationRunner.createTables();
-      await this.validateMigrations(false);
-    }
+    //set default
+    const oldSchema = await this.switchDefaultSchema(this.schemaName);
+    try {
+      if (doCleanup) {
+        await this.clean();
+      } else {
+        await db.recreateMissingSchema(this.schemaName);
+        await this.createTables();
+        await this.validateMigrations(false);
+      }  
+      
+    } finally {
+      await this.switchDefaultSchema(oldSchema);
+    }   
+
+    //add schema to search_path
   }
 
-  async up(forceClean) {
+  async up(forceClean = false) {
     // initialize runner
     await this.init(forceClean);
+
+    const oldSchema = await this.switchDefaultSchema(this.schemaName);
 
     // start transaction
     await db.query('BEGIN');
@@ -75,7 +124,7 @@ export default class MigrationRunner {
 
           // check that the object was created
           const tablename = this.migrations[i].objname;
-          const tablefound = await db.checkTableExists(tablename);
+          const tablefound = await db.checkTableExists(tablename, this.schemaName);
           if (tablefound == null) throw new Error(`Not found! Error creating ${tablename}`);
 
           // crete record in migrations table
@@ -93,26 +142,35 @@ export default class MigrationRunner {
           );
 
           // update db_version to current index
-          await db.query(`update db_version set version = ${i}`);
+          await db.query(`
+            INSERT INTO db_version(id, version) 
+            VALUES(1, ${i})
+            ON CONFLICT (id) DO UPDATE SET version = EXCLUDED.version;           
+          `);
         }
       }
 
       // commit on success
       await db.query('COMMIT');
-      console.log('transaction commited');
+      console.log('Migration up completed - transaction commited');
     } catch (error) {
       // rollback on error
       await db.query('ROLLBACK');
-      console.log('transaction rolled back');
+      console.log('Migration up failed - transaction rolled back');
       console.error(error.message);
+    } finally {
+      await this.switchDefaultSchema(oldSchema);
     }
+
   }
 
-  async down(toIndex) {
+  async down(toIndex = 0) {
+    const oldSchema = await this.switchDefaultSchema(this.schemaName);
+
     await db.query('BEGIN');
     try {
       // select dbmigrations from last to index and run in descending order
-      const qry = db.query(
+      const qry = await db.query(
         `select id, migrationid, objname, dropsql
                 from migrations
                 where id >= ${toIndex}
@@ -125,10 +183,12 @@ export default class MigrationRunner {
       for (let i = 0; i < dbMigrations.length; i += 1) {
         // run dropsql
         await db.query(dbMigrations[i].dropsql);
+        
+        // check if object was dropped        
+        const tablename = dbMigrations[i].objname;
+        console.log(`Dropped ${tablename}`);
 
-        // check if object was dropped
-        const tablename = this.dbMigrations[i].objname;
-        const tablefound = await db.checkTableExists(tablename);
+        const tablefound = await db.checkTableExists(tablename, this.schemaName);
         if (tablefound !== null) throw new Error(`Not dropped! Error dropping ${tablename}`);
 
         // delete record from migrations table
@@ -136,16 +196,22 @@ export default class MigrationRunner {
 
         // update db_version
         const currVersion = dbMigrations[i].id - 1 >= 0 ? dbMigrations[i].id - 1 : null;
-        await db.query(`update db_version set version = ${currVersion}`);
+        await db.query(`
+          INSERT INTO db_version(id, version) 
+          VALUES(1, ${currVersion})
+          ON CONFLICT (id) DO UPDATE SET version = EXCLUDED.version; 
+        `);
       }
 
       // on success commit transaction
       await db.query('COMMIT');
-      console.log('transaction commited');
+      console.log('Migration down complete - transaction commited');
     } catch (error) {
       await db.query('ROLLBACK');
-      console.log('transaction rolled back');
+      console.log('Migration down failed - transaction rolled back');
       console.error(error.message);
+    } finally {
+      await this.switchDefaultSchema(oldSchema);
     }
   }
 
