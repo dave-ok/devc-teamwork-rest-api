@@ -11,8 +11,8 @@ envModule.env(true);
 try {
   
   (async () => {
-    const migrationRunner = new MigrationRunner(migrations, db.getClient);
-    console.log(process.env.MIG_DOWN);
+    const migrationRunner = new MigrationRunner(migrations, db.getClient, 'public');
+    
     if(process.env.MIG_DOWN === '1'){
       //run migration down first
       

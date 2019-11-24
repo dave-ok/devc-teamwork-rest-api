@@ -41,20 +41,18 @@ export default class MigrationRunner {
   }
 
   async createTables() {
-    console.log('initiating migrations and db_version');
-
-    const result = await db.query('select current_schema() as current_schema;');
-    console.log(`current schema is ${result.rows[0].current_schema}`);
+    
+    const result = await db.query('select current_schema() as current_schema;');    
 
     let tablefound = await db.checkTableExists('migrations', this.schemaName);
     if (tablefound == null) {
-      console.log('creating migrations table');
+      console.log('Creating migrations table');
       await db.query(CREATE_MIGRATIONS_TABLE);
     }
 
     tablefound = await db.checkTableExists('db_version', this.schemaName);
     if (tablefound == null) {
-      console.log('creating versions table');
+      console.log('Creating versions table');
       await db.query(CREATE_DB_VERSION_TABLE);
     }
   }
