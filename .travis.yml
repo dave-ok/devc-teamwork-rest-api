@@ -1,10 +1,16 @@
 language: node_js
 node_js:
-- '10'
+  - '10'
 services:
-- postgresql
+  - postgresql
 before_script:
-- psql -c 'CREATE DATABASE teamwork_test_db' -U postgres
+  - psql -c 'CREATE DATABASE teamwork_test_db' -U postgres
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+  - npm run coverage
 env:
   global:
   - DB_USER=postgres
@@ -12,6 +18,7 @@ env:
   - DB_PORT=5432
   - DB_PASSWORD=''
   - DB_HOST=localhost
+  - CC_TEST_REPORTER_ID=b9dffe64ff9b1570eef3cc69cc4add47938822ca6127ef69e2d26e2f2ca55e1b
 deploy:
   provider: heroku
   api_key:
