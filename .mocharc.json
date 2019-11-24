@@ -1,3 +1,3 @@
 {
-    "file" : ["tests/dbinit.js"]
+    "file" : ["tests/dbinit.test.js"]
 }
