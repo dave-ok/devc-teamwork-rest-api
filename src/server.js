@@ -1,8 +1,29 @@
 import envModule from 'custom-env';
 import app from './api';
+import MigrationRunner from './api/db/migrationRunner';
+import migrations from './api/db/migrations';
+import db from './api/db';
 
 // load environment variables
 envModule.env(true);
+
+// initialize db - run migrations in IIFE
+try {
+  (async () => {
+    const migrationRunner = new MigrationRunner(migrations, db.getClient, 'public');
+
+    if (process.env.MIG_DOWN === '1') {
+      // run migration down first
+
+      console.log('Migrating Down');
+      await migrationRunner.down();
+    }
+
+    await migrationRunner.up();
+  })();
+} catch (error) {
+  console.log(error.message);
+}
 
 const http = require('http');
 
