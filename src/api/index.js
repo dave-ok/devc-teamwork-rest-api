@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import v1Router from './v1/routes';
-import { dispatchError } from './utils/errorhandler';
+import errorHandler from './utils/errorhandler';
 
 // create express app
 const app = express();
@@ -28,8 +28,8 @@ app.all('*', (req, res) => {
 });
 
 // default error handler
-app.use((err, req, res) => {
-  dispatchError(err, res);
+app.use((err, req, res, next) => {
+  errorHandler(err, req, res, next);
 });
 
 export default app;

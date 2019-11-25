@@ -1,18 +1,24 @@
-export class ErrorHandler extends Error {
-  constructor(statusCode, message) {
-    super();
-    this.statusCode = statusCode;
-    this.message = message;
+
+const errorHandler = (err, req, res, next) => {  
+  if (err.statusCode){
+    res.status(err.statusCode).json({
+      status: 'error',
+      error: err.message
+    });
   }
-}
-
-export const dispatchError = (err, res) => {
-  let { status } = err;
-  const { message } = err;
-
-  status = status || 500;
-  res.status(status).json({
-    status: 'error',
-    error: message,
-  });
+  else if (err.status){
+    res.status(err.status).json({
+      status: 'error',
+      error: err.message
+    });
+  }
+  else {
+    res.status(500).json({
+      status: 'error',
+      error: 'Internal server error'
+    });
+  }  
+  
 };
+
+export default errorHandler;
