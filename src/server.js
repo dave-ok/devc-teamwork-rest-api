@@ -23,6 +23,7 @@ try {
   })();
 } catch (error) {
   console.log(error.message);
+  throw error;
 }
 
 const http = require('http');

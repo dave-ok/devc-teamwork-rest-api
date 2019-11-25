@@ -1,4 +1,4 @@
-// import { expect } from 'chai';
+import { expect } from 'chai';
 import app from '../../src/api';
 
 const request = require('supertest');
@@ -36,9 +36,11 @@ describe('The express server', () => {
     it('should respond with "Oops! Resource not found"', (done) => {
       request(app)
         .get('/gobbledygook')
-        .expect('Oops! Resource not found')
-        .end((err) => {
-          if (err) { done(err); } else done();
+        .expect(404)
+        .end((err, res) => {
+          if (err) { done(err); }
+          expect(res.body.error).to.contain('Oops!');
+          done();
         });
     });
   });
