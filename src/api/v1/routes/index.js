@@ -14,13 +14,13 @@ const exjwt = exjwtModule({
   secret: secretphrase,
 });
 
-//whitelist paths - no auth required
+// whitelist paths - no auth required
 const whitelist = [
   '/',
-  '/auth/signin' 
+  '/auth/signin',
 ];
 
-router.use(exjwt.unless({path: whitelist, useOriginalUrl: false}));
+router.use(exjwt.unless({ path: whitelist, useOriginalUrl: false }));
 
 
 // // define various route/method permissions here

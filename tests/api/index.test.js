@@ -38,7 +38,7 @@ describe('The express server', () => {
         .get('/gobbledygook')
         .expect(404)
         .end((err, res) => {
-          if (err) { done(err); } 
+          if (err) { done(err); }
           expect(res.body.error).to.contain('Oops!');
           done();
         });
