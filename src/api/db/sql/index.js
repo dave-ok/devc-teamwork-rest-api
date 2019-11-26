@@ -242,6 +242,7 @@ CREATE OR REPLACE VIEW public.vw_users AS
     users.user_id,
     users.job_role,
     users.department,
+    users.password,
     users.address,
         CASE users.gender
             WHEN 'M'::bpchar THEN 'Male'::text

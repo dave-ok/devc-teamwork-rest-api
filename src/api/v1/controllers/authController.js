@@ -4,11 +4,10 @@ import User from '../models/user.model';
 import handleResponse from '../../utils/responseHandler';
 import CustomError from '../../utils/customError';
 
-const generateToken = (userId, firstName, email, gender) => {
+const generateToken = (userData) => {
+  const { user_id: userId, email, permissions = [] } = userData;
   const secretPhrase = Buffer.from(process.env.JWT_SECRET || 'our little secret', 'base64');
-  const token = jwt.sign({
-    userId, firstName, email, gender,
-  }, secretPhrase);
+  const token = jwt.sign({ userId, email, permissions }, secretPhrase, {expiresIn: '24h'});
 
   return token;
 };
@@ -48,7 +47,7 @@ export const signupUser = async (userData) => {
   user.address = userData.address;
   await user.save();
 
-  user.token = generateToken(user.user_id, user.first_name, user.email, user.gender);
+  user.token = generateToken(user);
 
   return user;
 };
@@ -77,7 +76,10 @@ const authCtrl = {
     // check if user exists
     let user;
     try {
-      const row = await User.getAll({ email: req.body.email }, ['user_id', 'password']);
+      const row = await User.getAll(
+        { email: req.body.email },
+        ['user_id', 'password', 'gender', 'department', 'user_name'],
+      );
       [user] = row;
     } catch (error) {
       // if user not exist return login error
@@ -99,15 +101,13 @@ const authCtrl = {
 
       if (passwordOk) {
         // return token, userId and message
-        const token = generateToken(
-          user.user_id,
-          user.first_name,
-          user.email,
-          user.password,
-        );
+        // get user permissions to include in payload
+        const userPermissions = await User.getbyIdWithPermissions(user.user_id);
+        const token = generateToken(userPermissions);
 
         return handleResponse(res, 200, {
           userId: user.user_id,
+          userName: user.user_name,
           message: 'Login successful',
           token,
         });

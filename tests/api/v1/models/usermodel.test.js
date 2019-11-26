@@ -11,7 +11,7 @@ describe('User model', () => {
     });
     describe('when viewtable is called', () => {
       it('should return "users"', () => {
-        expect(User.viewTable()).to.be.equal('users');
+        expect(User.viewTable()).to.be.equal('vw_users');
       });
     });
     describe('when modifyTable is called', () => {
