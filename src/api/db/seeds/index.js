@@ -2,7 +2,7 @@ export const usersTableSeed = `
 INSERT INTO public.users(
     first_name, last_name, email, password, gender, job_role, 
     department, address)
-VALUES ('John', 'Doe', 'johndoe@domain.com', '$2y$10$hfZSpHuNgtn7fx1vBhSYQu4BNG4z6SITRsDNfGTc3snE2i0zGoLWe', 
+VALUES ('John', 'Doe', 'johndoe@domain.com', '$2b$10$oRXtVlcQDivW7VLB9BOExOuUC9x4bvMYoV5vhzECBCoZbdG1bWM/W', 
     'M', 'system admin', 'IT', '4 Longway Street, New York');
 `;
 

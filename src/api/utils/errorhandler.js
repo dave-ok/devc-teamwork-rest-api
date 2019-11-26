@@ -15,6 +15,8 @@ const errorHandler = (err, req, res) => {
       status: 'error',
       error: 'Internal server error',
     });
+
+    console.log(err.message);
   }
 };
 
