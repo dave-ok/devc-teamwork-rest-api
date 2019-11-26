@@ -4,7 +4,7 @@ import User from '../models/user.model';
 import handleResponse from '../../utils/responseHandler';
 import CustomError from '../../utils/customError';
 
-const generateToken = (userData) => {
+export const generateToken = (userData) => {
   const { user_id: userId, email, permissions = [] } = userData;
   const secretPhrase = Buffer.from(process.env.JWT_SECRET || 'our little secret', 'base64');
   const token = jwt.sign({ userId, email, permissions }, secretPhrase, { expiresIn: '24h' });
