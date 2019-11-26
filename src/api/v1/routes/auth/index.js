@@ -1,6 +1,6 @@
 import express from 'express';
 import authCtrl from '../../controllers/authController';
-import createUpdateUserValidationRules from '../../middleware/validationRules';
+import { createUpdateUserRule } from '../../middleware/validationRules';
 import validateData from '../../middleware/validateData';
 
 
@@ -8,7 +8,7 @@ const authRouter = express.Router();
 
 authRouter.post(
   '/create-user',
-  createUpdateUserValidationRules(),
+  createUpdateUserRule(),
   validateData,
   authCtrl.createUser,
 );

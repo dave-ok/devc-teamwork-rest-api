@@ -1,7 +1,7 @@
 import { body } from 'express-validator';
 
 
-export default () => [
+export const createUpdateUserRule = () => [
   body('firstName')
     .exists({ checkFalsy: true }).withMessage('is required')
     .isLength({ min: 3, max: 50 })
@@ -40,4 +40,15 @@ export default () => [
     .exists({ checkFalsy: true }).withMessage('is required')
     .isLength({ min: 10, max: undefined })
     .withMessage('field length (min:10)'),
+];
+
+export const createUpdateArticleRule = () => [
+  body('title')
+    .exists({ checkFalsy: true }).withMessage('is required')
+    .isLength({ min: 3, max: 100 })
+    .withMessage('field length min:3, max:100'),
+  body('article')
+    .exists({ checkFalsy: true }).withMessage('is required')
+    .isLength({ min: 10, max: undefined })
+    .withMessage('field length min:10'),
 ];
