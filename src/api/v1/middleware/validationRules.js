@@ -1,4 +1,4 @@
-import { body } from 'express-validator';
+import { body, param } from 'express-validator';
 
 
 export const createUpdateUserRule = () => [
@@ -51,4 +51,9 @@ export const createUpdateArticleRule = () => [
     .exists({ checkFalsy: true }).withMessage('is required')
     .isLength({ min: 10, max: undefined })
     .withMessage('field length min:10'),
+  param('articleId')
+    .if((value, { req }) => req.method === 'PATCH')
+    .exists({ checkFalsy: true }).withMessage('url parameter is required')
+    .isInt()
+    .withMessage('url parameter must be an integer'),
 ];

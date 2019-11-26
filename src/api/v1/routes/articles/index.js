@@ -16,4 +16,11 @@ articlesRouter.post(
   articlesCtrl.createArticle,
 );
 
+articlesRouter.patch(
+  '/:articleId',
+  createUpdateArticleRule(),
+  validateData,
+  articlesCtrl.updateArticle,
+);
+
 export default articlesRouter;
