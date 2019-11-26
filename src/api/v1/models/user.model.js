@@ -19,7 +19,7 @@ export default class User extends DBModel {
   static pkfield() { return 'user_id'; }
 
   // primary key field
-  static viewTable() { return 'users'; }
+  static viewTable() { return 'vw_users'; }
 
   // prejoin in db as view for lookup fields
   static modifyTable() { return 'users'; } // table meant to write to
@@ -42,16 +42,24 @@ export default class User extends DBModel {
     const result = await this.getbyId(id);
 
     if (result) {
-      const roles = await UserRole.getbyUserId(id);
+      try {
+        const roles = await UserRole.getbyUserId(id);
+        if (roles) {
+          // iterate through array and get all values into array
+          const permissions = roles.reduce((perms, record) => {
+            perms.push(record.role);
+            return perms;
+          }, []);
 
-      if (roles) {
-        // iterate through array and get all values into array
-        const permissions = roles.reduce((perms, record) => {
-          perms.push(record.role);
-          return perms;
-        }, []);
+          result.permissions = permissions;
+        }
+      } catch (error) {
+        // ignore error if no permissions
+        if (error.message.indexOf('object not found') < 0) {
+          throw error;
+        }
 
-        result.permissions = permissions;
+        result.permissions = [];
       }
     }
 
