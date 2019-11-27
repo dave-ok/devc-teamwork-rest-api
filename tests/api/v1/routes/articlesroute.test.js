@@ -3,6 +3,8 @@ import { expect } from 'chai';
 import customEnv from 'custom-env';
 import app from '../../../../src/api';
 import { generateToken } from '../../../../src/api/v1/controllers/authController';
+import Article from '../../../../src/api/v1/models/article.model';
+import db from '../../../../src/api/db';
 
 customEnv.env('test');
 
@@ -259,7 +261,86 @@ describe('Articles resource endpoints integration tests', () => {
     });
   });
 
+  describe('GET: /articles/', () => {
+    describe('when an unauthenticated user requests to view all articles', () => {
+      it('should reply with error no authorization token found, 401', (done) => {
+        request(app)
+          .get('/api/v1/articles/')
+          .expect('Content-Type', /json/)
+          .expect(401)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('No authorization token');
+            return done();
+          });
+      });
+    });
+
+
+    describe('when an authenticated user requests to view all articles', () => {
+      before(async () => {
+        // add one more article
+        const article = new Article();
+        article.title = 'Another Article';
+        article.article = 'Another article content';
+        article.user_id = 2;
+        await article.save();
+      });
+
+      it('when articles exist in DB should return all articles', (done) => {
+        request(app)
+          .get('/api/v1/articles/')
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect(200)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+
+            expect(res.body).to.have.property('status', 'success');
+            expect(res.body.data).to.have.property('articles').that.is.an('array');
+            expect(res.body.data).to.have.property('articles').with.length(2);
+            return done();
+          });
+      });
+      it('when no articles in DB should return empty array with message', (done) => {
+        // delete all articles
+        (async () => {
+          await db.query('DELETE FROM ARTICLES');
+        })();
+
+        request(app)
+          .get('/api/v1/articles/')
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect(200)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+
+            expect(res.body).to.have.property('status', 'success');
+            expect(res.body.data).to.have.property('articles').that.is.an('array');
+            expect(res.body.data).to.have.property('articles').that.is.empty;
+            expect(res.body.data).to.have.property('message', 'No articles found');
+
+            return done();
+          });
+      });
+    });
+  });
+
   describe('DELETE: /articles/:id', () => {
+    before(async () => {
+      // add one more article
+      const article = new Article();
+      article.title = 'A New Article';
+      article.article = 'Admin article content';
+      article.user_id = 1;
+      await article.save();
+      ADMIN_ARTICLE_ID = article.article_id;
+    });
+
     describe('when an unauthenticated user requests to delete an article', () => {
       it('should reply with error no authorization token found, 401', (done) => {
         request(app)

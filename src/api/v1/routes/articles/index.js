@@ -5,9 +5,7 @@ import articlesCtrl from '../../controllers/articlesController';
 
 const articlesRouter = express.Router();
 
-articlesRouter.get('/', (req, res) => {
-  res.send('articles default route');
-});
+articlesRouter.get('/', articlesCtrl.viewAllArticles);
 
 articlesRouter.post(
   '/',

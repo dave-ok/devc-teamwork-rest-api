@@ -159,6 +159,44 @@ const articlesCtrl = {
       return next(error);
     }
   },
+
+  viewAllArticles: async (req, res, next) => {
+    try {
+      // retrieve articles from DB
+      const articles = await Article.getAll({}, [], ['created_on DESC']);
+
+      // console.log(`article: ${JSON.stringify(article)}`);
+
+      // map DB comments fields and return selected and renamed fields
+      const mappedArticles = articles.map((article) => {
+        const mapped = {};
+
+        mapped.articleId = article.article_id;
+        mapped.article = article.article;
+        mapped.title = article.title;
+        mapped.authorId = article.user_id;
+        mapped.authorName = article.author_name;
+        mapped.createdOn = article.created_on;
+
+        return mapped;
+      });
+
+      return responseHandler(res, 200, {
+        articles: mappedArticles,
+        message: `${mappedArticles.length} articles found`,
+      });
+    } catch (error) {
+      // console.log(`error creating user: ${error.message}`);
+      if (error.message.indexOf('not found') >= 0) {
+        return responseHandler(res, 200, {
+          articles: [],
+          message: 'No articles found',
+        });
+      }
+
+      return next(error);
+    }
+  },
 };
 
 export default articlesCtrl;
