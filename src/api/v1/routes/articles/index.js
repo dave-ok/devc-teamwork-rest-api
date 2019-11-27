@@ -1,6 +1,6 @@
 import express from 'express';
 import validateData from '../../middleware/validateData';
-import { createUpdateArticleRule, deleteArticleRule } from '../../middleware/validationRules';
+import { createUpdateArticleRule, singleArticleRule } from '../../middleware/validationRules';
 import articlesCtrl from '../../controllers/articlesController';
 
 const articlesRouter = express.Router();
@@ -25,9 +25,16 @@ articlesRouter.patch(
 
 articlesRouter.delete(
   '/:articleId',
-  deleteArticleRule(),
+  singleArticleRule(),
   validateData,
   articlesCtrl.deleteArticle,
+);
+
+articlesRouter.get(
+  '/:articleId',
+  singleArticleRule(),
+  validateData,
+  articlesCtrl.viewArticle,
 );
 
 export default articlesRouter;

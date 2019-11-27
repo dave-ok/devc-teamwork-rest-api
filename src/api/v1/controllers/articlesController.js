@@ -37,7 +37,7 @@ const articlesCtrl = {
       // retrieve article from DB
       const article = await Article.getbyId(articleId);
 
-      console.log(`article: ${JSON.stringify(article)}`);
+      // console.log(`article: ${JSON.stringify(article)}`);
 
       // if article not found raise error
       if (!article) {
@@ -77,7 +77,7 @@ const articlesCtrl = {
       // retrieve article from DB
       const article = await Article.getbyId(articleId);
 
-      console.log(`article: ${JSON.stringify(article)}`);
+      // console.log(`article: ${JSON.stringify(article)}`);
 
       // if article not found raise error
       if (!article) {
@@ -93,6 +93,62 @@ const articlesCtrl = {
 
       return responseHandler(res, 200, {
         message: 'Article succesfully deleted',
+      });
+    } catch (error) {
+      // console.log(`error creating user: ${error.message}`);
+      if (error.message.indexOf('not found') >= 0) {
+        return next(new CustomError(404, 'Article not found'));
+      }
+
+      return next(error);
+    }
+  },
+
+  viewArticle: async (req, res, next) => {
+    try {
+      // get articleId from url params
+      const { articleId } = req.params;
+      // console.log(`view articleID: ${articleId}`);
+
+      // retrieve article from DB
+      const article = await Article.getArticle(articleId);
+
+      // console.log(`article: ${JSON.stringify(article)}`);
+
+      // if article not found raise error
+      if (!article) {
+        return next(new CustomError(404, 'Article not found'));
+      }
+
+      // map DB comments fields and return selected and renamed fields
+      const mappedComments = article.comments.map((comment) => {
+        const mapped = {};
+        mapped.commentId = comment.article_comment_id;
+        mapped.comment = comment.comment;
+        mapped.authorId = comment.user_id;
+        mapped.authorName = comment.author_name;
+
+        return mapped;
+      });
+
+      // map DB tags fields and return selected and renamed fields
+      const mappedTags = article.tags.map((tag) => {
+        const mapped = {};
+        mapped.articleTagId = tag.article_tag_id;
+        mapped.tag = tag.tag;
+
+        return mapped;
+      });
+
+      return responseHandler(res, 200, {
+        id: article.article_id,
+        createdOn: article.created_on,
+        title: article.title,
+        article: article.article,
+        authorId: article.user_id,
+        authorName: article.author_name,
+        comments: mappedComments,
+        tags: mappedTags,
       });
     } catch (error) {
       // console.log(`error creating user: ${error.message}`);

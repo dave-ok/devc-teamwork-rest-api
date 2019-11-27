@@ -200,6 +200,65 @@ describe('Articles resource endpoints integration tests', () => {
     });
   });
 
+  describe('GET: /articles/:id', () => {
+    describe('when an unauthenticated user requests to view an article', () => {
+      it('should reply with error no authorization token found, 401', (done) => {
+        request(app)
+          .get(`/api/v1/articles/${ADMIN_ARTICLE_ID}`)
+          .expect('Content-Type', /json/)
+          .expect(401)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('No authorization token');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to view a non-existent article', () => {
+      it('should return error that article not found', (done) => {
+        request(app)
+          .get('/api/v1/articles/777')
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect('Content-Type', /json/)
+          .expect(404)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('not found');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to view an existing article', () => {
+      it('should return article with comments and tags', (done) => {
+        request(app)
+          .get(`/api/v1/articles/${ADMIN_ARTICLE_ID}`)
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect(200)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+
+            expect(res.body).to.have.property('status', 'success');
+            expect(res.body.data).to.have.property('id', ADMIN_ARTICLE_ID);
+            expect(res.body.data).to.have.property('title', 'Article Title');
+            expect(res.body.data).to.have.property('article', 'Edited article content');
+            expect(res.body.data).to.have.property('authorName', 'John Doe');
+            expect(res.body.data).to.have.property('comments');
+            expect(res.body.data).to.have.property('tags');
+
+            return done();
+          });
+      });
+    });
+  });
+
   describe('DELETE: /articles/:id', () => {
     describe('when an unauthenticated user requests to delete an article', () => {
       it('should reply with error no authorization token found, 401', (done) => {

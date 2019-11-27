@@ -57,6 +57,8 @@ export default class Article extends DBModel {
         if (error.message.indexOf('object not found') < 0) {
           throw error;
         }
+
+        result.comments = [];
       }
       try {
         result.tags = await ArticleTag.getbyArticleId(id);
@@ -64,6 +66,8 @@ export default class Article extends DBModel {
         if (error.message.indexOf('object not found') < 0) {
           throw error;
         }
+
+        result.tags = [];
       }
     }
 
