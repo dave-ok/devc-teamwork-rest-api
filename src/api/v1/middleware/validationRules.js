@@ -57,3 +57,10 @@ export const createUpdateArticleRule = () => [
     .isInt()
     .withMessage('url parameter must be an integer'),
 ];
+
+export const deleteArticleRule = () => [
+  param('articleId')
+    .exists({ checkFalsy: true }).withMessage('url parameter is required')
+    .isInt()
+    .withMessage('url parameter must be an integer'),
+];
