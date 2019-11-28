@@ -36,6 +36,6 @@ articlesRouter.get(
   articlesCtrl.viewArticle,
 );
 
-articlesRouter.use('/comments', articleCommentsRouter);
+articlesRouter.use('/:articleId/comments', articleCommentsRouter);
 
 export default articlesRouter;

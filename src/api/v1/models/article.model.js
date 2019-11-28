@@ -52,11 +52,8 @@ export default class Article extends DBModel {
     const articleComment = new ArticleComment();
 
     articleComment.article_id = this.article_id;
-    console.log(typeof articleComment.article_id);
-
     articleComment.comment = comment;
     articleComment.user_id = userId;
-    console.log(typeof userId);
     await articleComment.save();
 
     return articleComment.article_comment_id;

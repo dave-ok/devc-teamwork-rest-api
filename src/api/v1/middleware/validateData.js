@@ -3,13 +3,13 @@ import CustomError from '../../utils/customError';
 
 const validateData = (req, res, next) => {
   const errors = validationResult(req);
-
   if (errors.isEmpty()) {
     return next();
   }
   const errorsArray = [];
   errors.array().map((error) => errorsArray.push({ [error.param]: error.msg }));
 
+  // console.log(errorsArray);
   return next(new CustomError(422, errorsArray));
 };
 

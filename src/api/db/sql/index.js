@@ -275,7 +275,7 @@ CREATE OR REPLACE VIEW public.vw_gif_comments AS
 
 `;
 
-export const DROP_VW_GIF_COMMENTS = 'DROP VIEW public.vw_gif_comments;';
+export const DROP_VW_GIF_COMMENTS = 'DROP VIEW IF EXISTS public.vw_gif_comments;';
 
 export const CREATE_VW_ARTICLE_COMMENTS = `
 CREATE OR REPLACE VIEW public.vw_article_comments AS 
@@ -297,7 +297,7 @@ CREATE OR REPLACE VIEW public.vw_article_comments AS
   WHERE vw_users.user_id = article_comments.user_id;
 `;
 
-export const DROP_VW_ARTICLE_COMMENTS = 'DROP VIEW public.vw_article_comments;';
+export const DROP_VW_ARTICLE_COMMENTS = 'DROP VIEW IF EXISTS public.vw_article_comments;';
 
 export const CREATE_VW_ARTICLE_TAGS = `
 CREATE OR REPLACE VIEW public.vw_article_tags AS 

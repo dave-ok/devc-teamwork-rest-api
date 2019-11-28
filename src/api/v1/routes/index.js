@@ -26,19 +26,15 @@ router.use(exjwt.unless({ path: whitelist, useOriginalUrl: false }));
 // // define various route/method permissions here
 // // --TO-DO-- make this dynamic and persistent from DB?
 const routePerms = {
-  '/api/v1/auth/create-user': {
-    POST: ['admin'],
-  },
+  'create-user': { POST: ['admin'] },
+  unflag: { POST: ['admin'] },
 };
 
 // define routes here
-router.get('/testroute', checkPermissions(routePerms), (req, res) => {
-  res.status(200).send(`article test ${req.user.permissions}`);
-});
 
 router.use('/auth', checkPermissions(routePerms), authRouter);
-router.use('/gifs', gifsRouter);
-router.use('/articles', articlesRouter);
+router.use('/gifs', checkPermissions(routePerms), gifsRouter);
+router.use('/articles', checkPermissions(routePerms), articlesRouter);
 router.use('/feed', feedRouter);
 
 // default response to base URL

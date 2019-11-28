@@ -17,7 +17,8 @@ import {
   CREATE_VW_ARTICLE_TAGS,
   DROP_VW_ARTICLES, DROP_VW_GIFS, DROP_VW_ARTICLE_COMMENTS,
   DROP_VW_GIF_COMMENTS,
-  DROP_VW_ARTICLE_TAGS, DROP_VW_USERS, DROP_VW_USER_ROLES,
+  DROP_VW_ARTICLE_TAGS, DROP_VW_USERS, DROP_VW_USER_ROLES, ALTER_VW_ARTICLE_COMMENTS,
+  ALTER_VW_GIF_COMMENTS,
 } from '../sql';
 
 
@@ -139,6 +140,20 @@ export const createVwUserRoles = new Migration(
   DROP_VW_USER_ROLES,
 );
 
+export const alterVwGifComments = new Migration(
+  'alter_vw_gif_comments',
+  'vw_gif_comments',
+  ALTER_VW_GIF_COMMENTS,
+  DROP_VW_GIF_COMMENTS,
+);
+
+export const alterVwArticleComments = new Migration(
+  'alter_vw_article_comments',
+  'vw_article_comments',
+  ALTER_VW_ARTICLE_COMMENTS,
+  DROP_VW_ARTICLE_COMMENTS,
+);
+
 export default [
   createUsersTable,
   createArticlesTable,
@@ -156,4 +171,6 @@ export default [
   createVwArticleComments,
   createVwGifComments,
   createVwArticleTags,
+  alterVwArticleComments,
+  alterVwGifComments,
 ];
