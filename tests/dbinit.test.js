@@ -7,7 +7,7 @@ import { testTablesSeed } from './api/db/sql';
 // global hooks before running all tests
 before(async function initDb() {
   // set longer timeout for DB operations
-  this.timeout(10000);
+  this.timeout(20000);
 
   let dbClient;
 

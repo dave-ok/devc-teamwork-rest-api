@@ -48,22 +48,37 @@ export default class Article extends DBModel {
     return true;
   }
 
+  async addComment(userId, comment) {
+    const articleComment = new ArticleComment();
+
+    articleComment.article_id = this.article_id;
+    console.log(typeof articleComment.article_id);
+    
+    articleComment.comment = comment;
+    articleComment.user_id = userId;
+    console.log(typeof userId);
+    await articleComment.save();
+
+    return articleComment.article_comment_id;
+  }
+
+
   static async getArticle(id) {
     const result = await this.getbyId(id);
     if (result) {
       try {
         result.comments = await ArticleComment.getByArticleId(id);
       } catch (error) {
-        if (error.message.indexOf('object not found') < 0) {
+        if (error.message.indexOf('not found') < 0) {
           throw error;
         }
-
         result.comments = [];
       }
+
       try {
         result.tags = await ArticleTag.getbyArticleId(id);
       } catch (error) {
-        if (error.message.indexOf('object not found') < 0) {
+        if (error.message.indexOf('not found') < 0) {
           throw error;
         }
 
