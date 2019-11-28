@@ -53,7 +53,7 @@ export default class Article extends DBModel {
 
     articleComment.article_id = this.article_id;
     console.log(typeof articleComment.article_id);
-    
+
     articleComment.comment = comment;
     articleComment.user_id = userId;
     console.log(typeof userId);

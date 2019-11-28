@@ -153,7 +153,7 @@ describe('Articles resource endpoints integration tests', () => {
     describe('when an authenticated user requests to edit a non-existent article', () => {
       it('should return error that article not found', (done) => {
         request(app)
-          .patch(`/api/v1/articles/777`)
+          .patch('/api/v1/articles/777')
           .send({
             title: 'Article Title',
             article: 'An article with no title',
@@ -264,7 +264,7 @@ describe('Articles resource endpoints integration tests', () => {
       before(async () => {
         // add an article and add comments
         const article = new Article();
-        article.title = `Jane's first article`;
+        article.title = 'Jane\'s first article';
         article.article = 'The world is your playground';
         article.user_id = 2;
         await article.save();
@@ -316,7 +316,6 @@ describe('Articles resource endpoints integration tests', () => {
 
 
     describe('when an authenticated user requests to view all articles', () => {
-      
       describe('when articles exist in DB', () => {
         before(async () => {
           // add one more article
@@ -336,39 +335,38 @@ describe('Articles resource endpoints integration tests', () => {
               if (err) {
                 return done(err);
               }
-  
+
               expect(res.body).to.have.property('status', 'success');
               expect(res.body.data).to.have.property('articles').that.is.an('array');
               expect(res.body.data).to.have.property('articles').that.is.not.empty;
               return done();
             });
         });
-      });     
-      
+      });
+
       describe('when no articles in DB', () => {
         // delete all articles
         before(async () => {
-            await db.query('DELETE FROM ARTICLES');
+          await db.query('DELETE FROM ARTICLES');
         });
 
         it('should return empty array with message', (done) => {
           request(app)
-          .get('/api/v1/articles/')
-          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
-          .expect(200)
-          .end((err, res) => {
-            if (err) {
-              return done(err);
-            }
+            .get('/api/v1/articles/')
+            .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+            .expect(200)
+            .end((err, res) => {
+              if (err) {
+                return done(err);
+              }
 
-            expect(res.body).to.have.property('status', 'success');
-            expect(res.body.data).to.have.property('articles').that.is.an('array');
-            expect(res.body.data).to.have.property('articles').that.is.empty;
-            expect(res.body.data).to.have.property('message', 'No articles found');
+              expect(res.body).to.have.property('status', 'success');
+              expect(res.body.data).to.have.property('articles').that.is.an('array');
+              expect(res.body.data).to.have.property('articles').that.is.empty;
+              expect(res.body.data).to.have.property('message', 'No articles found');
 
-            return done();
-
-          });        
+              return done();
+            });
         });
       });
     });
@@ -421,7 +419,7 @@ describe('Articles resource endpoints integration tests', () => {
     describe('when an authenticated user requests to delete a non-existent article', () => {
       it('should return error that article not found among owned articles', (done) => {
         request(app)
-          .delete(`/api/v1/articles/777`)
+          .delete('/api/v1/articles/777')
           .set('Authorization', `Bearer ${USER_TOKEN}`)
           .expect('Content-Type', /json/)
           .expect(404)

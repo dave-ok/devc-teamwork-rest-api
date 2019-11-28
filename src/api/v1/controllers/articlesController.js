@@ -55,10 +55,8 @@ const articlesCtrl = {
       if (error.message.indexOf('not found') >= 0) {
         return next(new CustomError(404, 'Article not found'));
       }
-      else {
-        return next(error);
-      }
-      
+
+      return next(error);
     }
   },
 
@@ -71,7 +69,7 @@ const articlesCtrl = {
       const article = await Article.getbyId(articleId);
 
       // console.log(`article: ${JSON.stringify(article)}`);
-      
+
       // if article does not belong to user return error
       if (article.user_id !== req.user.userId) {
         return next(new CustomError(404, 'Article not found among your own articles'));
@@ -87,10 +85,8 @@ const articlesCtrl = {
       if (error.message.indexOf('not found') >= 0) {
         return next(new CustomError(404, 'Article not found'));
       }
-      else {
-        return next(error);
-      }
 
+      return next(error);
     }
   },
 
@@ -140,10 +136,8 @@ const articlesCtrl = {
       if (error.message.indexOf('not found') >= 0) {
         return next(new CustomError(404, 'Article not found'));
       }
-      else {
-        return next(error);
-      }
-      
+
+      return next(error);
     }
   },
 
@@ -180,11 +174,8 @@ const articlesCtrl = {
           message: 'No articles found',
         });
       }
-      else {
-        return next(error);
-      }
 
-      
+      return next(error);
     }
   },
 
@@ -209,11 +200,8 @@ const articlesCtrl = {
       if (error.message.indexOf('not found') >= 0) {
         return next(new CustomError(404, 'Article not found'));
       }
-      else {
-        return next(error);
-      }
 
-      
+      return next(error);
     }
   },
 

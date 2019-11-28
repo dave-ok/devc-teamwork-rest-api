@@ -9,9 +9,8 @@ customEnv.env('test');
 
 
 describe('Auth resource endpoints integration tests', () => {
-  let ADMIN_TOKEN; 
-  let USER_TOKEN; 
-  let ADMIN_ARTICLE_ID;
+  let ADMIN_TOKEN;
+  let USER_TOKEN;
 
   before(() => {
     ADMIN_TOKEN = generateToken(
@@ -70,7 +69,7 @@ describe('Auth resource endpoints integration tests', () => {
             address: '4 somewhere street',
           })
           .set('Accept', 'application/json')
-          .set('Authorization', `Bearer ${process.env.USER_TOKEN}`)
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
           .expect('Content-Type', /json/)
           .expect(403)
           .end((err, res) => {
