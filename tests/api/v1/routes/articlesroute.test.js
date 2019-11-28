@@ -373,4 +373,93 @@ describe('Articles resource endpoints integration tests', () => {
       });
     });
   });
+
+  describe('DELETE: /articles/:id', () => {
+    before(async () => {
+      // add one more article
+      const article = new Article();
+      article.title = 'A New Article';
+      article.article = 'Admin article content';
+      article.user_id = 1;
+      await article.save();
+      ADMIN_ARTICLE_ID = article.article_id;
+
+      const userArticle = new Article();
+      userArticle.title = 'A New Article';
+      userArticle.article = 'User article content';
+      userArticle.user_id = 2;
+      await userArticle.save();
+      // USER_ARTICLE_ID = userArticle.article_id;
+    });
+
+    describe('when an unauthenticated user requests to delete an article', () => {
+      it('should reply with error no authorization token found, 401', (done) => {
+        request(app)
+          .delete(`/api/v1/articles/${ADMIN_ARTICLE_ID}`)
+          .expect('Content-Type', /json/)
+          .expect(401)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('No authorization token');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to delete someone else\'s article', () => {
+      it('should return error that article not found among owned articles', (done) => {
+        request(app)
+          .delete(`/api/v1/articles/${ADMIN_ARTICLE_ID}`)
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
+          .expect('Content-Type', /json/)
+          .expect(404)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('not found among');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated/authorized user requests to delete a non-existent article', () => {
+      it('should return error that article not found among owned articles', (done) => {
+        request(app)
+          .delete('/api/v1/articles/777')
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
+          .expect('Content-Type', /json/)
+          .expect(404)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('not found');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to delete their own article', () => {
+      it('should return successfully deleted message', (done) => {
+        request(app)
+          .delete(`/api/v1/articles/${ADMIN_ARTICLE_ID}`)
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect(200)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+
+            expect(res.body).to.have.property('status', 'success');
+            expect(res.body.data).to.have.property('message', 'Article succesfully deleted');
+
+            return done();
+          });
+      });
+    });
+  });
 });
