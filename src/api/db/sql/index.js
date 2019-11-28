@@ -275,7 +275,7 @@ CREATE OR REPLACE VIEW public.vw_gif_comments AS
 
 `;
 
-export const DROP_VW_GIF_COMMENTS = 'DROP VIEW public.vw_gif_comments;';
+export const DROP_VW_GIF_COMMENTS = 'DROP VIEW IF EXISTS public.vw_gif_comments;';
 
 export const CREATE_VW_ARTICLE_COMMENTS = `
 CREATE OR REPLACE VIEW public.vw_article_comments AS 
@@ -297,7 +297,7 @@ CREATE OR REPLACE VIEW public.vw_article_comments AS
   WHERE vw_users.user_id = article_comments.user_id;
 `;
 
-export const DROP_VW_ARTICLE_COMMENTS = 'DROP VIEW public.vw_article_comments;';
+export const DROP_VW_ARTICLE_COMMENTS = 'DROP VIEW IF EXISTS public.vw_article_comments;';
 
 export const CREATE_VW_ARTICLE_TAGS = `
 CREATE OR REPLACE VIEW public.vw_article_tags AS 
@@ -336,3 +336,49 @@ CREATE OR REPLACE VIEW public.vw_user_roles AS
 `;
 
 export const DROP_VW_USER_ROLES = 'DROP VIEW public.vw_user_roles;';
+
+export const ALTER_VW_GIF_COMMENTS = `
+CREATE OR REPLACE VIEW public.vw_gif_comments AS 
+SELECT gif_comments.gif_comment_id AS comment_id,
+   gif_comments.gif_comment_id,
+   gif_comments.gif_id,
+   gif_comments.comment,
+   gif_comments.created_on,
+   gif_comments.user_id,
+   gif_comments.user_id AS author_id,
+   gif_comments.flagged,
+   vw_users.user_name,
+   vw_users.email,
+   vw_users.job_role,
+   vw_users.department,
+   vw_users.gender,
+   gifs.title,
+   gifs.image_url
+  FROM gif_comments,
+   vw_users,
+   gifs
+ WHERE vw_users.user_id = gif_comments.user_id AND gifs.gif_id = gif_comments.gif_id;
+`;
+
+export const ALTER_VW_ARTICLE_COMMENTS = `
+CREATE OR REPLACE VIEW public.vw_article_comments AS 
+SELECT article_comments.article_comment_id AS comment_id,
+    article_comments.article_comment_id,
+    article_comments.article_id,
+    article_comments.user_id,
+    article_comments.user_id AS author_id,
+    article_comments.comment,
+    article_comments.created_on,
+    article_comments.flagged,
+    vw_users.user_name AS author_name,
+    vw_users.email,
+    vw_users.job_role,
+    vw_users.department,
+    vw_users.gender,
+    articles.title,
+    articles.article
+   FROM article_comments,
+    articles,
+    vw_users
+  WHERE vw_users.user_id = article_comments.user_id AND article_comments.article_id = articles.article_id;
+`;

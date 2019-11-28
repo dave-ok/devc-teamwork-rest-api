@@ -55,7 +55,7 @@ export default class User extends DBModel {
         }
       } catch (error) {
         // ignore error if no permissions
-        if (error.message.indexOf('object not found') < 0) {
+        if (error.message.indexOf('not found') < 0) {
           throw error;
         }
 

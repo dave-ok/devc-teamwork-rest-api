@@ -1,4 +1,3 @@
-
 import Article from '../models/article.model';
 import responseHandler from '../../utils/responseHandler';
 import CustomError from '../../utils/customError';
@@ -21,10 +20,6 @@ const articlesCtrl = {
       });
     } catch (error) {
       // console.log(`error creating user: ${error.message}`);
-      if (error.message.indexOf('duplicate key') >= 0) {
-        return next(new CustomError(409, 'Duplicate error: article already exists'));
-      }
-
       return next(error);
     }
   },
@@ -38,11 +33,6 @@ const articlesCtrl = {
       const article = await Article.getbyId(articleId);
 
       // console.log(`article: ${JSON.stringify(article)}`);
-
-      // if article not found raise error
-      if (!article) {
-        return next(new CustomError(404, 'Article not found'));
-      }
 
       // if article does not belong to user return error
       if (article.user_id !== req.user.userId) {
@@ -79,11 +69,6 @@ const articlesCtrl = {
 
       // console.log(`article: ${JSON.stringify(article)}`);
 
-      // if article not found raise error
-      if (!article) {
-        return next(new CustomError(404, 'Article not found'));
-      }
-
       // if article does not belong to user return error
       if (article.user_id !== req.user.userId) {
         return next(new CustomError(404, 'Article not found among your own articles'));
@@ -114,11 +99,6 @@ const articlesCtrl = {
       const article = await Article.getArticle(articleId);
 
       // console.log(`article: ${JSON.stringify(article)}`);
-
-      // if article not found raise error
-      if (!article) {
-        return next(new CustomError(404, 'Article not found'));
-      }
 
       // map DB comments fields and return selected and renamed fields
       const mappedComments = article.comments.map((comment) => {
@@ -197,6 +177,7 @@ const articlesCtrl = {
       return next(error);
     }
   },
+
 };
 
 export default articlesCtrl;

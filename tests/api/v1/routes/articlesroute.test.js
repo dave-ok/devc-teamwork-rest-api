@@ -10,8 +10,10 @@ customEnv.env('test');
 
 describe('Articles resource endpoints integration tests', () => {
   // generate tokens for admin and jane doe
-  let ADMIN_TOKEN; let USER_TOKEN; let
-    ADMIN_ARTICLE_ID;
+  let ADMIN_TOKEN;
+  let USER_TOKEN;
+  let ADMIN_ARTICLE_ID;
+  // let USER_ARTICLE_ID;
 
   before(() => {
     ADMIN_TOKEN = generateToken(
@@ -150,6 +152,29 @@ describe('Articles resource endpoints integration tests', () => {
       });
     });
 
+    describe('when an authenticated user requests to edit a non-existent article', () => {
+      it('should return error that article not found', (done) => {
+        request(app)
+          .patch('/api/v1/articles/777')
+          .send({
+            title: 'Article Title',
+            article: 'An article with no title',
+          })
+          .set('Accept', 'application/json')
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
+          .expect('Content-Type', /json/)
+          .expect(404)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('not found');
+            return done();
+          });
+      });
+    });
+
     describe('when an authenticated user requests to edit their own article', () => {
       describe('and data is invalid', () => {
         it('should return error containing validation errors and code 422', (done) => {
@@ -237,9 +262,23 @@ describe('Articles resource endpoints integration tests', () => {
     });
 
     describe('when an authenticated user requests to view an existing article', () => {
+      let janeArticleID;
+      before(async () => {
+        // add an article and add comments
+        const article = new Article();
+        article.title = 'Jane\'s first article';
+        article.article = 'The world is your playground';
+        article.user_id = 2;
+        await article.save();
+
+        janeArticleID = article.article_id;
+
+        await article.addComment(1, 'Hmmm... interesting article, Jane');
+        await article.addComment(2, 'Thanks John');
+      });
       it('should return article with comments and tags', (done) => {
         request(app)
-          .get(`/api/v1/articles/${ADMIN_ARTICLE_ID}`)
+          .get(`/api/v1/articles/${janeArticleID}`)
           .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
           .expect(200)
           .end((err, res) => {
@@ -248,11 +287,11 @@ describe('Articles resource endpoints integration tests', () => {
             }
 
             expect(res.body).to.have.property('status', 'success');
-            expect(res.body.data).to.have.property('id', ADMIN_ARTICLE_ID);
-            expect(res.body.data).to.have.property('title', 'Article Title');
-            expect(res.body.data).to.have.property('article', 'Edited article content');
-            expect(res.body.data).to.have.property('authorName', 'John Doe');
-            expect(res.body.data).to.have.property('comments');
+            expect(res.body.data).to.have.property('id', janeArticleID);
+            expect(res.body.data).to.have.property('title', 'Jane\'s first article');
+            expect(res.body.data).to.have.property('article', 'The world is your playground');
+            expect(res.body.data).to.have.property('authorName', 'Jane Doe');
+            expect(res.body.data).to.have.property('comments').with.length(2);
             expect(res.body.data).to.have.property('tags');
 
             return done();
@@ -279,53 +318,58 @@ describe('Articles resource endpoints integration tests', () => {
 
 
     describe('when an authenticated user requests to view all articles', () => {
-      before(async () => {
-        // add one more article
-        const article = new Article();
-        article.title = 'Another Article';
-        article.article = 'Another article content';
-        article.user_id = 2;
-        await article.save();
+      describe('when articles exist in DB', () => {
+        before(async () => {
+          // add one more article
+          const article = new Article();
+          article.title = 'Another Article';
+          article.article = 'Another article content';
+          article.user_id = 2;
+          await article.save();
+        });
+
+        it('should return all articles', (done) => {
+          request(app)
+            .get('/api/v1/articles/')
+            .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+            .expect(200)
+            .end((err, res) => {
+              if (err) {
+                return done(err);
+              }
+
+              expect(res.body).to.have.property('status', 'success');
+              expect(res.body.data).to.have.property('articles').that.is.an('array');
+              expect(res.body.data).to.have.property('articles').that.is.not.empty;
+              return done();
+            });
+        });
       });
 
-      it('when articles exist in DB should return all articles', (done) => {
-        request(app)
-          .get('/api/v1/articles/')
-          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
-          .expect(200)
-          .end((err, res) => {
-            if (err) {
-              return done(err);
-            }
-
-            expect(res.body).to.have.property('status', 'success');
-            expect(res.body.data).to.have.property('articles').that.is.an('array');
-            expect(res.body.data).to.have.property('articles').with.length(2);
-            return done();
-          });
-      });
-      it('when no articles in DB should return empty array with message', (done) => {
+      describe('when no articles in DB', () => {
         // delete all articles
-        (async () => {
+        before(async () => {
           await db.query('DELETE FROM ARTICLES');
-        })();
+        });
 
-        request(app)
-          .get('/api/v1/articles/')
-          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
-          .expect(200)
-          .end((err, res) => {
-            if (err) {
-              return done(err);
-            }
+        it('should return empty array with message', (done) => {
+          request(app)
+            .get('/api/v1/articles/')
+            .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+            .expect(200)
+            .end((err, res) => {
+              if (err) {
+                return done(err);
+              }
 
-            expect(res.body).to.have.property('status', 'success');
-            expect(res.body.data).to.have.property('articles').that.is.an('array');
-            expect(res.body.data).to.have.property('articles').that.is.empty;
-            expect(res.body.data).to.have.property('message', 'No articles found');
+              expect(res.body).to.have.property('status', 'success');
+              expect(res.body.data).to.have.property('articles').that.is.an('array');
+              expect(res.body.data).to.have.property('articles').that.is.empty;
+              expect(res.body.data).to.have.property('message', 'No articles found');
 
-            return done();
-          });
+              return done();
+            });
+        });
       });
     });
   });
@@ -339,6 +383,13 @@ describe('Articles resource endpoints integration tests', () => {
       article.user_id = 1;
       await article.save();
       ADMIN_ARTICLE_ID = article.article_id;
+
+      const userArticle = new Article();
+      userArticle.title = 'A New Article';
+      userArticle.article = 'User article content';
+      userArticle.user_id = 2;
+      await userArticle.save();
+      // USER_ARTICLE_ID = userArticle.article_id;
     });
 
     describe('when an unauthenticated user requests to delete an article', () => {
@@ -369,6 +420,24 @@ describe('Articles resource endpoints integration tests', () => {
             }
             expect(res.body).to.have.property('status', 'error');
             expect(res.body.error).to.contain('not found among');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated/authorized user requests to delete a non-existent article', () => {
+      it('should return error that article not found among owned articles', (done) => {
+        request(app)
+          .delete('/api/v1/articles/777')
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
+          .expect('Content-Type', /json/)
+          .expect(404)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('not found');
             return done();
           });
       });

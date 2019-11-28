@@ -64,3 +64,25 @@ export const singleArticleRule = () => [
     .isInt()
     .withMessage('url parameter must be an integer'),
 ];
+
+export const addArticleCommentRule = () => [
+  param('articleId')
+    .exists({ checkFalsy: true }).withMessage('url parameter is required')
+    .isInt()
+    .withMessage('url parameter must be an integer'),
+  body('comment')
+    .exists({ checkFalsy: true }).withMessage('is required')
+    .isLength({ min: 1, max: 200 })
+    .withMessage('field length min:1, max:200'),
+];
+
+export const singleCommentRule = () => [
+  param('articleId')
+    .exists({ checkFalsy: true }).withMessage('url parameter is required')
+    .isInt()
+    .withMessage('url parameter must be an integer'),
+  param('commentId')
+    .exists({ checkFalsy: true }).withMessage('url parameter is required')
+    .isInt()
+    .withMessage('url parameter must be an integer'),
+];

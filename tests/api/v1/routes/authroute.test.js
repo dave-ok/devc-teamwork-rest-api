@@ -2,13 +2,32 @@ import request from 'supertest';
 import { expect } from 'chai';
 import customEnv from 'custom-env';
 import app from '../../../../src/api';
-import { signupUser } from '../../../../src/api/v1/controllers/authController';
+import { signupUser, generateToken } from '../../../../src/api/v1/controllers/authController';
 
 
 customEnv.env('test');
 
 
 describe('Auth resource endpoints integration tests', () => {
+  let ADMIN_TOKEN;
+  let USER_TOKEN;
+
+  before(() => {
+    ADMIN_TOKEN = generateToken(
+      {
+        user_id: 1,
+        email: 'johndoe@domain.com',
+        permissions: ['admin'],
+      },
+    );
+
+    USER_TOKEN = generateToken(
+      {
+        user_id: 2,
+        email: 'jane@doe.com',
+      },
+    );
+  });
   describe('POST: /auth/create-user', () => {
     describe('when an unauthenticated user requests to create user', () => {
       it('should reply with error no authorization token found, 401', (done) => {
@@ -50,7 +69,7 @@ describe('Auth resource endpoints integration tests', () => {
             address: '4 somewhere street',
           })
           .set('Accept', 'application/json')
-          .set('Authorization', `Bearer ${process.env.USER_TOKEN}`)
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
           .expect('Content-Type', /json/)
           .expect(403)
           .end((err, res) => {
@@ -77,7 +96,7 @@ describe('Auth resource endpoints integration tests', () => {
               // "address": "4 somewhere street" required
             })
             .set('Accept', 'application/json')
-            .set('Authorization', `Bearer ${process.env.ADMIN_TOKEN}`)
+            .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
             .expect('Content-Type', /json/)
             .expect(422)
             .end((err, res) => {
@@ -105,7 +124,7 @@ describe('Auth resource endpoints integration tests', () => {
               address: '4 somewhere street',
             })
           // .set('Accept', 'application/json')
-            .set('Authorization', `Bearer ${process.env.ADMIN_TOKEN}`)
+            .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
           // .expect('Content-Type', /json/)
             .expect(201)
             .end((err, res) => {
@@ -137,7 +156,7 @@ describe('Auth resource endpoints integration tests', () => {
               address: '4 somewhere street',
             })
           // .set('Accept', 'application/json')
-            .set('Authorization', `Bearer ${process.env.ADMIN_TOKEN}`)
+            .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
           // .expect('Content-Type', /json/)
             .expect(409)
             .end((err, res) => {
