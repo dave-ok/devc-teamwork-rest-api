@@ -86,3 +86,10 @@ export const singleCommentRule = () => [
     .isInt()
     .withMessage('url parameter must be an integer'),
 ];
+
+export const createGifRule = () => [
+  body('title')
+    .exists({ checkFalsy: true }).withMessage('is required')
+    .isLength({ min: 3, max: 100 })
+    .withMessage('field length min:3, max:100'),
+];

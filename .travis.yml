@@ -1,16 +1,17 @@
 language: node_js
 node_js:
-  - '10'
+- '10'
 services:
-  - postgresql
+- postgresql
 before_script:
-  - psql -c 'CREATE DATABASE teamwork_test_db' -U postgres
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-  - chmod +x ./cc-test-reporter
-  - ./cc-test-reporter before-build
+- psql -c 'CREATE DATABASE teamwork_test_db' -U postgres
+- curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+  > ./cc-test-reporter
+- chmod +x ./cc-test-reporter
+- "./cc-test-reporter before-build"
 after_script:
-  - npm run coverage
-  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+- npm run coverage
+- "./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT"
 env:
   global:
   - DB_USER=postgres
@@ -19,6 +20,7 @@ env:
   - DB_PASSWORD=''
   - DB_HOST=localhost
   - CC_TEST_REPORTER_ID=b9dffe64ff9b1570eef3cc69cc4add47938822ca6127ef69e2d26e2f2ca55e1b
+  - secure: XKA9Vfb3YqfoKxNrDR3zyBmTTEW0GzDuynzCNOmm85xrwv7j847UUbWZkJnHSPVSYWCDY9G4WuqoD7Mu3ipfpyzBqbqSTOECPvUgRRffGx7ACAHwMPQU4QF6ghE9CgmlF7cv3PfUvJLWbXvUiICRjQTz+7o8H3vjjQIirXkB4wOBx2btWSK5SiIDUnT8+wRXdG+fmnFOv3Cifl1JMC3t6Oftj+Md1Eg6nDKnFxc4liprqUIJLfMfrw/Aiz1K753X/6XXl9TyDv/4nmSe8IB5/aeG/tv6kW6JoCCTKY61P13jKii3BrNxqb5HDHIT0jioTT43X7RlR7jPStQI5mQx0QC2vw1WmG8c5Osh9foXho+/y+9LD1VmN2rugdJn3jG5B+wtbGBD9F51uv1ZWCO7bB7bs+AgJqmi3lpSJtevmXbFkIF6GthL5dpby+9n4Y7Dippg376qCJeZD1HYkhLDRQnRtt1aIusUOBM9hmGQ974t4E74CqxmzL2FrT6y5Qr/orZEOaeXYu8T8h/o2sj159opA9pTzhlx6Y8MFw/mM03T6DZB8oPb8i6bSyq3qNN5S83JIuej0tFlqfwIWhDletlcr5AHpAzmBA8nWlvAtYlB5kfqi+kKrf+NuDQFnf8voJwUPa4mPvZQuzgdBvZB1DWJgEcUTmaxAs2tayiJtUw=
 deploy:
   provider: heroku
   api_key:

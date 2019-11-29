@@ -1,8 +1,11 @@
 import express from 'express';
 import cors from 'cors';
+import customEnv from 'custom-env';
 import v1Router from './v1/routes';
 import errorHandler from './utils/errorhandler';
 import CustomError from './utils/customError';
+
+customEnv.env(true);
 
 // create express app
 const app = express();
