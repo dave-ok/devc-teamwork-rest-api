@@ -1,6 +1,6 @@
 import express from 'express';
 import validateData from '../../middleware/validateData';
-import { createGifRule } from '../../middleware/validationRules';
+import { createGifRule, singleGifRule } from '../../middleware/validationRules';
 import gifsCtrl from '../../controllers/gifsController';
 import cloudinaryUploader from '../../middleware/cloudinaryUploader';
 import gifCommentsRouter from './comments';
@@ -13,6 +13,13 @@ gifsRouter.post(
   createGifRule(),
   validateData,
   gifsCtrl.createGif,
+);
+
+gifsRouter.delete(
+  '/:gifId',
+  singleGifRule(),
+  validateData,
+  gifsCtrl.deleteGif,
 );
 
 gifsRouter.use('/:gifId/comments', gifCommentsRouter);
