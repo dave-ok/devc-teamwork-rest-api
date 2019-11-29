@@ -2,15 +2,16 @@ import { expect } from 'chai';
 import request from 'supertest';
 import { generateToken } from '../../../../src/api/v1/controllers/authController';
 import app from '../../../../src/api/index';
+import Gif from '../../../../src/api/v1/models/gif.model';
 
 describe('Gifs resource endpoints integration tests', () => {
   // generate tokens for admin and jane doe
   let ADMIN_TOKEN;
   let TEST_IMAGE_GIF;
   let TEST_IMAGE_JPG;
-  // let USER_TOKEN;
-  // let ADMIN_GIF_ID;
-  // let USER_ARTICLE_ID;
+  let USER_TOKEN;
+  let ADMIN_GIF_ID;
+  // let USER_GIF_ID;
 
   before(() => {
     ADMIN_TOKEN = generateToken(
@@ -21,12 +22,12 @@ describe('Gifs resource endpoints integration tests', () => {
       },
     );
 
-    /* USER_TOKEN = generateToken(
+    USER_TOKEN = generateToken(
       {
         user_id: 2,
         email: 'jane@doe.com',
       },
-    ); */
+    );
 
     TEST_IMAGE_GIF = `${__dirname}/images/image.gif`;
     TEST_IMAGE_JPG = `${__dirname}/images/image.jpg`;
@@ -93,6 +94,92 @@ describe('Gifs resource endpoints integration tests', () => {
               return done();
             });
         }).timeout(25000);
+      });
+    });
+  });
+
+  describe('DELETE: /gifs/:id', () => {
+    before(async () => {
+      // add one more gif
+      const gif = new Gif();
+      gif.title = 'A New Gif';
+      gif.image_url = 'http://some-url';
+      gif.user_id = 1;
+      await gif.save();
+      ADMIN_GIF_ID = gif.gif_id;
+
+      const userGif = new Gif();
+      userGif.title = 'A New Gif';
+      userGif.image_url = 'http://some-other-url';
+      userGif.user_id = 2;
+      await userGif.save();
+      // USER_GIF_ID = userGif.gif_id;
+    });
+
+    describe('when an unauthenticated user requests to delete an gif', () => {
+      it('should reply with error no authorization token found, 401', (done) => {
+        request(app)
+          .delete(`/api/v1/gifs/${ADMIN_GIF_ID}`)
+          .expect(401)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('No authorization token');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to delete someone else\'s gif', () => {
+      it('should return error that gif not found among owned gifs', (done) => {
+        request(app)
+          .delete(`/api/v1/gifs/${ADMIN_GIF_ID}`)
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
+          .expect(404)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('not found among');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated/authorized user requests to delete a non-existent gif', () => {
+      it('should return error that gif not found among owned gifs', (done) => {
+        request(app)
+          .delete('/api/v1/gifs/777')
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
+          .expect(404)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('not found');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to delete their own gif', () => {
+      it('should return successfully deleted message', (done) => {
+        request(app)
+          .delete(`/api/v1/gifs/${ADMIN_GIF_ID}`)
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect(200)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+
+            expect(res.body).to.have.property('status', 'success');
+            expect(res.body.data).to.have.property('message', 'Gif succesfully deleted');
+
+            return done();
+          });
       });
     });
   });

@@ -1,6 +1,6 @@
 import Gif from '../models/gif.model';
 import responseHandler from '../../utils/responseHandler';
-// import CustomError from '../../utils/customError';
+import CustomError from '../../utils/customError';
 
 const gifsCtrl = {
 
@@ -25,6 +25,36 @@ const gifsCtrl = {
       if (error.message.indexOf('file format') >= 0) {
         return next(new CustomError(422, 'Invalid file format. Only gif images allowed'));
       } */
+      return next(error);
+    }
+  },
+
+  deleteGif: async (req, res, next) => {
+    try {
+      // get gifId from url params
+      const { gifId } = req.params;
+
+      // retrieve gif from DB
+      const gif = await Gif.getbyId(gifId);
+
+      // console.log(`gif: ${JSON.stringify(gif)}`);
+
+      // if gif does not belong to user return error
+      if (gif.user_id !== req.user.userId) {
+        return next(new CustomError(404, 'Gif not found among your own gifs'));
+      }
+
+      await gif.deleteOne();
+
+      return responseHandler(res, 200, {
+        message: 'Gif succesfully deleted',
+      });
+    } catch (error) {
+      // console.log(`error creating user: ${error.message}`);
+      if (error.message.indexOf('not found') >= 0) {
+        return next(new CustomError(404, 'Gif not found'));
+      }
+
       return next(error);
     }
   },

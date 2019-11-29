@@ -104,3 +104,10 @@ export const addGifCommentRule = () => [
     .isLength({ min: 1, max: 200 })
     .withMessage('field length min:1, max:200'),
 ];
+
+export const singleGifRule = () => [
+  param('gifId')
+    .exists({ checkFalsy: true }).withMessage('url parameter is required')
+    .isInt()
+    .withMessage('url parameter must be an integer'),
+];
