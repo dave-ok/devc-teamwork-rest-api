@@ -98,6 +98,78 @@ describe('Gifs resource endpoints integration tests', () => {
     });
   });
 
+  describe('GET: /gifs/:id', () => {
+    describe('when an unauthenticated user requests to view an gif', () => {
+      it('should reply with error no authorization token found, 401', (done) => {
+        request(app)
+          .get(`/api/v1/gifs/${ADMIN_GIF_ID}`)
+          .expect('Content-Type', /json/)
+          .expect(401)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('No authorization token');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to view a non-existent gif', () => {
+      it('should return error that gif not found', (done) => {
+        request(app)
+          .get('/api/v1/gifs/777')
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect('Content-Type', /json/)
+          .expect(404)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('not found');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to view an existing gif', () => {
+      let janeGifID;
+      before(async () => {
+        // add an gif and add comments
+        const gif = new Gif();
+        gif.title = 'Jane\'s first gif';
+        gif.image_url = 'http://some-url.com';
+        gif.user_id = 2;
+        await gif.save();
+
+        janeGifID = gif.gif_id;
+
+        await gif.addComment(1, 'Hmmm... interesting gif, Jane');
+        await gif.addComment(2, 'Thanks John');
+      });
+      it('should return gif with comments', (done) => {
+        request(app)
+          .get(`/api/v1/gifs/${janeGifID}`)
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect(200)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+
+            expect(res.body).to.have.property('status', 'success');
+            expect(res.body.data).to.have.property('id', janeGifID);
+            expect(res.body.data).to.have.property('title', 'Jane\'s first gif');
+            expect(res.body.data).to.have.property('imageUrl', 'http://some-url.com');
+            expect(res.body.data).to.have.property('authorName', 'Jane Doe');
+            expect(res.body.data).to.have.property('comments').with.length(2);
+
+            return done();
+          });
+      });
+    });
+  });
+
   describe('DELETE: /gifs/:id', () => {
     before(async () => {
       // add one more gif

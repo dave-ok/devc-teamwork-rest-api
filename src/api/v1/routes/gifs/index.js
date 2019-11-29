@@ -22,6 +22,13 @@ gifsRouter.delete(
   gifsCtrl.deleteGif,
 );
 
+gifsRouter.get(
+  '/:gifId',
+  singleGifRule(),
+  validateData,
+  gifsCtrl.viewGif,
+);
+
 gifsRouter.use('/:gifId/comments', gifCommentsRouter);
 
 export default gifsRouter;
