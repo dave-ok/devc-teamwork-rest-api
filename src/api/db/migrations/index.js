@@ -19,6 +19,8 @@ import {
   DROP_VW_GIF_COMMENTS,
   DROP_VW_ARTICLE_TAGS, DROP_VW_USERS, DROP_VW_USER_ROLES, ALTER_VW_ARTICLE_COMMENTS,
   ALTER_VW_GIF_COMMENTS,
+  CREATE_VW_FEED,
+  DROP_VW_FEED,
 } from '../sql';
 
 
@@ -154,6 +156,13 @@ export const alterVwArticleComments = new Migration(
   DROP_VW_ARTICLE_COMMENTS,
 );
 
+export const createVwFeed = new Migration(
+  'create_vw_feed',
+  'vw_feed',
+  CREATE_VW_FEED,
+  DROP_VW_FEED,
+);
+
 export default [
   createUsersTable,
   createArticlesTable,
@@ -173,4 +182,5 @@ export default [
   createVwArticleTags,
   alterVwArticleComments,
   alterVwGifComments,
+  createVwFeed,
 ];

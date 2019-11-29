@@ -382,3 +382,27 @@ SELECT article_comments.article_comment_id AS comment_id,
     vw_users
   WHERE vw_users.user_id = article_comments.user_id AND article_comments.article_id = articles.article_id;
 `;
+
+export const CREATE_VW_FEED = `
+CREATE OR REPLACE VIEW public.vw_feed AS 
+ SELECT vw_articles.article_id AS id,
+    vw_articles.created_on,
+    vw_articles.title,
+    vw_articles.article,
+    NULL::character varying AS image_url,
+    vw_articles.author_id,
+    vw_articles.author_name
+   FROM vw_articles
+UNION
+ SELECT vw_gifs.gif_id AS id,
+    vw_gifs.created_on,
+    vw_gifs.title,
+    NULL::character varying AS article,
+    vw_gifs.image_url,
+    vw_gifs.author_id,
+    vw_gifs.author_name
+   FROM vw_gifs
+  ORDER BY 2 DESC;
+`;
+
+export const DROP_VW_FEED = 'DROP VIEW public.vw_feed;';
