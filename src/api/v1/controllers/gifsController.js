@@ -5,7 +5,7 @@ import responseHandler from '../../utils/responseHandler';
 const gifsCtrl = {
 
   createGif: async (req, res, next) => {
-    console.log(`req.file: ${req.file.url}`);
+    // console.log(`req.file: ${req.file.url}`);
     try {
       const gif = new Gif();
       gif.title = req.body.title;
