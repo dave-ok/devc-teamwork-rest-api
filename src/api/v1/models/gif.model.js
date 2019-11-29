@@ -53,4 +53,15 @@ export default class Gif extends DBModel {
 
     return result;
   }
+
+  async addComment(userId, comment) {
+    const gifComment = new GifComment();
+
+    gifComment.gif_id = this.gif_id;
+    gifComment.comment = comment;
+    gifComment.user_id = userId;
+    await gifComment.save();
+
+    return gifComment.gif_comment_id;
+  }
 }
