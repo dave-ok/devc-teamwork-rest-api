@@ -49,8 +49,15 @@ export default class Gif extends DBModel {
 
   static async getGif(id) {
     const result = await this.getbyId(id);
-    result.comments = await GifComment.getByGifId(id);
-
+    try {
+      result.comments = await GifComment.getByGifId(id);
+    } catch (error) {
+      if (error.message.indexOf('not found') < 0) {
+        throw error;
+      }
+      result.comments = [];
+    }
+    
     return result;
   }
 
