@@ -13,7 +13,7 @@ describe('Articles resource endpoints integration tests', () => {
   let ADMIN_TOKEN;
   let USER_TOKEN;
   let ADMIN_ARTICLE_ID;
-  // let USER_ARTICLE_ID;
+  let USER_ARTICLE_ID;
 
   before(() => {
     ADMIN_TOKEN = generateToken(
@@ -456,6 +456,175 @@ describe('Articles resource endpoints integration tests', () => {
 
             expect(res.body).to.have.property('status', 'success');
             expect(res.body.data).to.have.property('message', 'Article succesfully deleted');
+
+            return done();
+          });
+      });
+    });
+  });
+
+  describe('POST: /articles/:articleId/flag', () => {
+    before(async () => {
+      // add one more article
+      const article = new Article();
+      article.title = 'A New Article';
+      article.article = 'Admin article content';
+      article.user_id = 1;
+      await article.save();
+      ADMIN_ARTICLE_ID = article.article_id;
+
+      const userArticle = new Article();
+      userArticle.title = 'A New Article';
+      userArticle.article = 'User article content';
+      userArticle.user_id = 2;
+      await userArticle.save();
+      USER_ARTICLE_ID = userArticle.article_id;
+    });
+
+    describe('when an unauthenticated user requests to flag an article', () => {
+      it('should reply with error no authorization token found, 401', (done) => {
+        request(app)
+          .post(`/api/v1/articles/${USER_ARTICLE_ID}/flag`)
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(401)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('No authorization token');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to flag their own article', () => {
+      it('should return error that user cannot flag their own article', (done) => {
+        request(app)
+          .post(`/api/v1/articles/${USER_ARTICLE_ID}/flag`)
+          .set('Accept', 'application/json')
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
+          .expect('Content-Type', /json/)
+          .expect(403)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('cannot flag');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to flag a non-existent article', () => {
+      it('should return error that article not found', (done) => {
+        request(app)
+          .post('/api/v1/articles/777/flag')
+          .set('Accept', 'application/json')
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
+          .expect('Content-Type', /json/)
+          .expect(404)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('not found');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to flag another user\'s article', () => {
+      it('should return success message and articleId', (done) => {
+        request(app)
+          .post(`/api/v1/articles/${USER_ARTICLE_ID}/flag`)
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect(200)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+
+            expect(res.body).to.have.property('status', 'success');
+            expect(res.body.data).to.have.property('articleId', USER_ARTICLE_ID);
+            expect(res.body.data).to.have.property('message', 'Article successfully flagged');
+
+            return done();
+          });
+      });
+    });
+  });
+
+  describe('POST: /articles/:articleId/unflag', () => {
+    describe('when an unauthenticated user requests to unflag an article', () => {
+      it('should reply with error no authorization token found, 401', (done) => {
+        request(app)
+          .post(`/api/v1/articles/${USER_ARTICLE_ID}/unflag`)
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(401)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('No authorization token');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated/unauthorized user requests to unflag an article', () => {
+      it('should return error that user does not have permissions', (done) => {
+        request(app)
+          .post(`/api/v1/articles/${USER_ARTICLE_ID}/unflag`)
+          .set('Accept', 'application/json')
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
+          .expect('Content-Type', /json/)
+          .expect(403)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('Permission denied');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated/authorized user requests to unflag a non-existent comment', () => {
+      it('should return error that comment not found', (done) => {
+        request(app)
+          .post('/api/v1/articles/777/unflag')
+          .set('Accept', 'application/json')
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect('Content-Type', /json/)
+          .expect(404)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('not found');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated/authorized user requests to unflag an article', () => {
+      it('should return success message and articleId', (done) => {
+        request(app)
+          .post(`/api/v1/articles/${USER_ARTICLE_ID}/unflag`)
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect(200)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+
+            expect(res.body).to.have.property('status', 'success');
+            expect(res.body.data).to.have.property('articleId', USER_ARTICLE_ID);
+            expect(res.body.data).to.have.property('message', 'Article successfully unflagged');
 
             return done();
           });
