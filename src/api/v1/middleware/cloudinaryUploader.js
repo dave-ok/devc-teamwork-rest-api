@@ -18,13 +18,12 @@ const cloudinaryUploader = (fieldName) => {
       multerMW(req, res, (err) => {
         if (err) {
           if (err.message.indexOf('file format') >= 0) {
-            next(new CustomError(422, 'Invalid file format. Only gif images allowed'));
+            return next(new CustomError(422, 'Invalid file format. Only gif images allowed'));
           }
-          next(err);
+          return next(err);
         }
+        return next();
       });
-
-      next();
     } catch (error) {
       next(error);
     }
