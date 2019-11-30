@@ -23,7 +23,7 @@ const articleCommentsCtrl = {
       });
     } catch (error) {
       // console.log(`error creating user: ${error.message}`);
-      if (error.message.indexOf('not found') >= 0) {
+      if (error.message.indexOf('foreign key') >= 0) {
         return next(new CustomError(404, 'Article not found'));
       }
 
