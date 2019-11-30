@@ -55,7 +55,7 @@ export const signupUser = async (userData) => {
 const authCtrl = {
   createUser: async (req, res, next) => {
     try {
-      console.log(`req.body create-user: ${JSON.stringify(req.body)}`);
+      // console.log(`req.body create-user: ${JSON.stringify(req.body)}`);
       const user = await signupUser(req.body);
 
       return handleResponse(res, 201, {
@@ -77,7 +77,7 @@ const authCtrl = {
     // check if user exists
     let user;
     try {
-      console.log(`req.body signIn: ${JSON.stringify(req.body)}`);
+      // console.log(`req.body signIn: ${JSON.stringify(req.body)}`);
       const row = await User.getAll(
         { email: req.body.email },
         ['user_id', 'password', 'gender', 'department', 'user_name'],

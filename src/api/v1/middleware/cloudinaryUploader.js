@@ -14,16 +14,20 @@ const multerStorage = multer({ storage });
 const cloudinaryUploader = (fieldName) => {
   const multerMW = multerStorage.single(fieldName);
   return (req, res, next) => {
-    multerMW(req, res, (err) => {
-      if (err) {
-        if (err.message.indexOf('file format') >= 0) {
-          return next(new CustomError(422, 'Invalid file format. Only gif images allowed'));
+    try {
+      multerMW(req, res, (err) => {
+        if (err) {
+          if (err.message.indexOf('file format') >= 0) {
+            next(new CustomError(422, 'Invalid file format. Only gif images allowed'));
+          }
+          next(err);
         }
-        return next(err);
-      }
+      });
 
-      return next();
-    });
+      next();
+    } catch (error) {
+      next(error);
+    }
   };
 };
 
