@@ -57,7 +57,7 @@ export default class Gif extends DBModel {
       }
       result.comments = [];
     }
-    
+
     return result;
   }
 
