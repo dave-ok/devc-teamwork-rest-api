@@ -6,6 +6,8 @@ import { addGifCommentRule } from '../../../middleware/validationRules';
 const gifCommentsRouter = express.Router({ mergeParams: true });
 
 gifCommentsRouter.post('/', addGifCommentRule(), validateData, gifCommentsCtrl.addComment);
+gifCommentsRouter.post('/:commentId/flag', gifCommentsCtrl.flagComment);
+gifCommentsRouter.post('/:commentId/unflag', gifCommentsCtrl.unflagComment);
 
 
 export default gifCommentsRouter;
