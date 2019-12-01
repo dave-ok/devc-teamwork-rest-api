@@ -231,7 +231,7 @@ const articlesCtrl = {
         });
       }
 
-      return next(new CustomError(500, 'Error unflagging comment'));
+      return next(new CustomError(500, 'Error unflagging article'));
 
       // console.log(`article comment: ${JSON.stringify(article)}`);
     } catch (error) {

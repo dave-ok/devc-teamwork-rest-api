@@ -11,7 +11,7 @@ describe('Gifs resource endpoints integration tests', () => {
   let TEST_IMAGE_JPG;
   let USER_TOKEN;
   let ADMIN_GIF_ID;
-  // let USER_GIF_ID;
+  let USER_GIF_ID;
 
   before(() => {
     ADMIN_TOKEN = generateToken(
@@ -47,7 +47,7 @@ describe('Gifs resource endpoints integration tests', () => {
             expect(res.body.error).to.contain('No authorization token');
             return done();
           });
-      }).timeout(5000);
+      });
     });
 
     describe('when an authenticated user requests to create a gif', () => {
@@ -103,7 +103,6 @@ describe('Gifs resource endpoints integration tests', () => {
       it('should reply with error no authorization token found, 401', (done) => {
         request(app)
           .get(`/api/v1/gifs/${ADMIN_GIF_ID}`)
-          .expect('Content-Type', /json/)
           .expect(401)
           .end((err, res) => {
             if (err) return done(err);
@@ -119,7 +118,6 @@ describe('Gifs resource endpoints integration tests', () => {
         request(app)
           .get('/api/v1/gifs/777')
           .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
-          .expect('Content-Type', /json/)
           .expect(404)
           .end((err, res) => {
             if (err) {
@@ -163,6 +161,169 @@ describe('Gifs resource endpoints integration tests', () => {
             expect(res.body.data).to.have.property('imageUrl', 'http://some-url.com');
             expect(res.body.data).to.have.property('authorName', 'Jane Doe');
             expect(res.body.data).to.have.property('comments').with.length(2);
+
+            return done();
+          });
+      });
+    });
+  });
+
+  describe('POST: /gifs/:gifId/flag', () => {
+    before(async () => {
+      // add one more gif
+      const gif = new Gif();
+      gif.title = 'A New Gif';
+      gif.image_url = 'http://some-url.com';
+      gif.user_id = 1;
+      await gif.save();
+      ADMIN_GIF_ID = gif.gif_id;
+
+      const userGif = new Gif();
+      userGif.title = 'A New Gif';
+      userGif.image_url = 'http://some-url.com';
+      userGif.user_id = 2;
+      await userGif.save();
+      USER_GIF_ID = userGif.gif_id;
+    });
+
+    describe('when an unauthenticated user requests to flag an gif', () => {
+      it('should reply with error no authorization token found, 401', (done) => {
+        request(app)
+          .post(`/api/v1/gifs/${USER_GIF_ID}/flag`)
+          .set('Accept', 'application/json')
+          .expect(401)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('No authorization token');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to flag their own gif', () => {
+      it('should return error that user cannot flag their own gif', (done) => {
+        request(app)
+          .post(`/api/v1/gifs/${USER_GIF_ID}/flag`)
+          .set('Accept', 'application/json')
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
+          .expect(403)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('cannot flag');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to flag a non-existent gif', () => {
+      it('should return error that gif not found', (done) => {
+        request(app)
+          .post('/api/v1/gifs/777/flag')
+          .set('Accept', 'application/json')
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
+          .expect(404)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('not found');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to flag another user\'s gif', () => {
+      it('should return success message and gifId', (done) => {
+        request(app)
+          .post(`/api/v1/gifs/${USER_GIF_ID}/flag`)
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect(200)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+
+            expect(res.body).to.have.property('status', 'success');
+            expect(res.body.data).to.have.property('gifId', USER_GIF_ID);
+            expect(res.body.data).to.have.property('message', 'Gif successfully flagged');
+
+            return done();
+          });
+      });
+    });
+  });
+
+  describe('POST: /gifs/:gifId/unflag', () => {
+    describe('when an unauthenticated user requests to unflag an gif', () => {
+      it('should reply with error no authorization token found, 401', (done) => {
+        request(app)
+          .post(`/api/v1/gifs/${USER_GIF_ID}/unflag`)
+          .set('Accept', 'application/json')
+          .expect(401)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('No authorization token');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated/unauthorized user requests to unflag an gif', () => {
+      it('should return error that user does not have permissions', (done) => {
+        request(app)
+          .post(`/api/v1/gifs/${USER_GIF_ID}/unflag`)
+          .set('Accept', 'application/json')
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
+          .expect(403)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('Permission denied');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated/authorized user requests to unflag a non-existent comment', () => {
+      it('should return error that comment not found', (done) => {
+        request(app)
+          .post('/api/v1/gifs/777/unflag')
+          .set('Accept', 'application/json')
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect(404)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('not found');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated/authorized user requests to unflag an gif', () => {
+      it('should return success message and gifId', (done) => {
+        request(app)
+          .post(`/api/v1/gifs/${USER_GIF_ID}/unflag`)
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect(200)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+
+            expect(res.body).to.have.property('status', 'success');
+            expect(res.body.data).to.have.property('gifId', USER_GIF_ID);
+            expect(res.body.data).to.have.property('message', 'Gif successfully unflagged');
 
             return done();
           });
