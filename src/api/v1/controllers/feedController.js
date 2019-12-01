@@ -12,8 +12,8 @@ const feedCtrl = {
 
         mapped.id = row.id;
         mapped.title = row.title;
-        mapped.article = row.article;
-        mapped.url = row.image_url;
+        mapped.article = row.article === null ? undefined : row.article;
+        mapped.url = row.image_url === null ? undefined : row.image_url;
         mapped.authorId = row.author_id;
         mapped.authorName = row.author_name;
         mapped.createdOn = row.created_on;

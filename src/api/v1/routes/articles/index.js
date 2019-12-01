@@ -36,6 +36,21 @@ articlesRouter.get(
   articlesCtrl.viewArticle,
 );
 
+articlesRouter.post(
+  '/:articleId/flag',
+  singleArticleRule(),
+  validateData,
+  articlesCtrl.flagArticle,
+);
+
+articlesRouter.post(
+  '/:articleId/unflag',
+  singleArticleRule(),
+  validateData,
+  articlesCtrl.unflagArticle,
+);
+
+
 articlesRouter.use('/:articleId/comments', articleCommentsRouter);
 
 export default articlesRouter;

@@ -29,6 +29,20 @@ gifsRouter.get(
   gifsCtrl.viewGif,
 );
 
+gifsRouter.post(
+  '/:gifId/flag',
+  singleGifRule(),
+  validateData,
+  gifsCtrl.flagGif,
+);
+
+gifsRouter.post(
+  '/:gifId/unflag',
+  singleGifRule(),
+  validateData,
+  gifsCtrl.unflagGif,
+);
+
 gifsRouter.use('/:gifId/comments', gifCommentsRouter);
 
 export default gifsRouter;

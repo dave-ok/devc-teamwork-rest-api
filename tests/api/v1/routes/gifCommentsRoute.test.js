@@ -9,7 +9,7 @@ describe('Gif comments resource endpoints integration tests', () => {
   let ADMIN_TOKEN;
   let USER_TOKEN;
   let ADMIN_GIF_ID;
-  // let USER_GIF_ID;
+  let USER_GIF_ID;
 
   before(async () => {
     ADMIN_TOKEN = generateToken(
@@ -42,7 +42,7 @@ describe('Gif comments resource endpoints integration tests', () => {
     userGif.user_id = 2;
     await userGif.save();
 
-    // USER_GIF_ID = userGifgif_id;
+    USER_GIF_ID = userGif.gif_id;
   });
 
   describe('POST: /gifs/:gifId/comments', () => {
@@ -115,6 +115,172 @@ describe('Gif comments resource endpoints integration tests', () => {
               return done();
             });
         });
+      });
+    });
+  });
+
+  describe('POST: /gifs/:gifId/comments/:commentId/flag', () => {
+    let commentId;
+    before(async () => {
+      const userGif = await Gif.getbyId(USER_GIF_ID);
+      commentId = await userGif.addComment(1, 'Nice');
+    });
+
+    describe('when an unauthenticated user requests to flag a comment', () => {
+      it('should reply with error no authorization token found, 401', (done) => {
+        request(app)
+          .post(`/api/v1/gifs/${USER_GIF_ID}/comments/${commentId}/flag`)
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(401)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('No authorization token');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to flag their own comment', () => {
+      it('should return error that user cannot flag their own comment', (done) => {
+        request(app)
+          .post(`/api/v1/gifs/${USER_GIF_ID}/comments/${commentId}/flag`)
+          .set('Accept', 'application/json')
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect('Content-Type', /json/)
+          .expect(403)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('cannot flag');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to flag a non-existent comment', () => {
+      it('should return error that comment not found', (done) => {
+        request(app)
+          .post(`/api/v1/gifs/${ADMIN_GIF_ID}/comments/777/flag`)
+          .set('Accept', 'application/json')
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
+          .expect('Content-Type', /json/)
+          .expect(404)
+          .end((err, res) => {
+            if (err) {
+              console.log(err);
+              return done(err);
+            }
+
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('not found');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated user requests to flag another user\'s comment', () => {
+      it('should return success message and commentId', (done) => {
+        request(app)
+          .post(`/api/v1/gifs/${USER_GIF_ID}/comments/${commentId}/flag`)
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
+          .expect(200)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+
+            expect(res.body).to.have.property('status', 'success');
+            expect(res.body.data).to.have.property('commentId', commentId);
+            expect(res.body.data).to.have.property('message', 'Comment successfully flagged');
+
+            return done();
+          });
+      });
+    });
+  });
+
+  describe('POST: /gifs/:gifId/comments/:commentId/unflag', () => {
+    let commentId;
+    before(async () => {
+      const userGif = await Gif.getbyId(USER_GIF_ID);
+      commentId = await userGif.addComment(1, 'Nice');
+    });
+
+    describe('when an unauthenticated user requests to unflag a comment', () => {
+      it('should reply with error no authorization token found, 401', (done) => {
+        request(app)
+          .post(`/api/v1/gifs/${USER_GIF_ID}/comments/${commentId}/unflag`)
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(401)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('No authorization token');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated/unauthorized user requests to unflag a comment', () => {
+      it('should return error that user does not have permissions', (done) => {
+        request(app)
+          .post(`/api/v1/gifs/${USER_GIF_ID}/comments/${commentId}/unflag`)
+          .set('Accept', 'application/json')
+          .set('Authorization', `Bearer ${USER_TOKEN}`)
+          .expect('Content-Type', /json/)
+          .expect(403)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('Permission denied');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated/authorized user requests to unflag a non-existent comment', () => {
+      it('should return error that comment not found', (done) => {
+        request(app)
+          .post(`/api/v1/gifs/${USER_GIF_ID}/comments/777/unflag`)
+          .set('Accept', 'application/json')
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect('Content-Type', /json/)
+          .expect(404)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.have.property('status', 'error');
+            expect(res.body.error).to.contain('not found');
+            return done();
+          });
+      });
+    });
+
+    describe('when an authenticated/authorized user requests to unflag a comment', () => {
+      it('should return success message and commentId', (done) => {
+        request(app)
+          .post(`/api/v1/gifs/${USER_GIF_ID}/comments/${commentId}/unflag`)
+          .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+          .expect(200)
+          .end((err, res) => {
+            if (err) {
+              return done(err);
+            }
+
+            expect(res.body).to.have.property('status', 'success');
+            expect(res.body.data).to.have.property('commentId', commentId);
+            expect(res.body.data).to.have.property('message', 'Comment successfully unflagged');
+
+            return done();
+          });
       });
     });
   });

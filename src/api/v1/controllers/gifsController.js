@@ -100,6 +100,72 @@ const gifsCtrl = {
     }
   },
 
+  flagGif: async (req, res, next) => {
+    try {
+      // flag gif
+      const gif = await Gif.getbyId(req.params.gifId);
+
+      // console.log(JSON.stringify(gif));
+      // console.log(JSON.stringify(gif));
+
+      console.log(`req user Id: ${req.user.userId}`);
+      console.log(`gif user id: ${gif.user_id}`);
+
+
+      // user cant flag their own gif
+      if (Number(req.user.userId) === gif.user_id) {
+        return next(new CustomError(403, 'User cannot flag his/her own gif'));
+      }
+
+      const success = await gif.flag();
+
+      if (success) {
+        return responseHandler(res, 200, {
+          message: 'Gif successfully flagged',
+          gifId: gif.gif_id,
+        });
+      }
+
+      return next(new CustomError(500, 'Error flagging gif'));
+
+      // console.log(`gif gif: ${JSON.stringify(gif)}`);
+    } catch (error) {
+      // console.log(`error creating user: ${error.message}`);
+      if (error.message.indexOf('not found') >= 0) {
+        return next(new CustomError(404, 'Gif not found'));
+      }
+
+      return next(error);
+    }
+  },
+
+  unflagGif: async (req, res, next) => {
+    try {
+      // flag gif
+      const gif = await Gif.getbyId(req.params.gifId);
+
+      const success = await gif.unflag();
+
+      if (success) {
+        return responseHandler(res, 200, {
+          message: 'Gif successfully unflagged',
+          gifId: gif.gif_id,
+        });
+      }
+
+      return next(new CustomError(500, 'Error unflagging gif'));
+
+      // console.log(`gif gif: ${JSON.stringify(gif)}`);
+    } catch (error) {
+      // console.log(`error creating user: ${error.message}`);
+      if (error.message.indexOf('not found') >= 0) {
+        return next(new CustomError(404, 'Gif not found'));
+      }
+
+      return next(error);
+    }
+  },
+
 
 };
 

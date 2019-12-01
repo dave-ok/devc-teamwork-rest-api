@@ -103,7 +103,7 @@ const articlesCtrl = {
       // map DB comments fields and return selected and renamed fields
       const mappedComments = article.comments.map((comment) => {
         const mapped = {};
-        mapped.commentId = comment.article_comment_id;
+        mapped.commentId = comment.article_id;
         mapped.comment = comment.comment;
         mapped.authorId = comment.user_id;
         mapped.authorName = comment.author_name;
@@ -172,6 +172,72 @@ const articlesCtrl = {
           articles: [],
           message: 'No articles found',
         });
+      }
+
+      return next(error);
+    }
+  },
+
+  flagArticle: async (req, res, next) => {
+    try {
+      // flag article
+      const article = await Article.getbyId(req.params.articleId);
+
+      // console.log(JSON.stringify(article));
+      // console.log(JSON.stringify(article));
+
+      console.log(`req user Id: ${req.user.userId}`);
+      console.log(`article user id: ${article.user_id}`);
+
+
+      // user cant flag their own article
+      if (Number(req.user.userId) === article.user_id) {
+        return next(new CustomError(403, 'User cannot flag his/her own article'));
+      }
+
+      const success = await article.flag();
+
+      if (success) {
+        return responseHandler(res, 200, {
+          message: 'Article successfully flagged',
+          articleId: article.article_id,
+        });
+      }
+
+      return next(new CustomError(500, 'Error flagging article'));
+
+      // console.log(`article article: ${JSON.stringify(article)}`);
+    } catch (error) {
+      // console.log(`error creating user: ${error.message}`);
+      if (error.message.indexOf('not found') >= 0) {
+        return next(new CustomError(404, 'Article not found'));
+      }
+
+      return next(error);
+    }
+  },
+
+  unflagArticle: async (req, res, next) => {
+    try {
+      // flag article
+      const article = await Article.getbyId(req.params.articleId);
+
+      const success = await article.unflag();
+
+      if (success) {
+        return responseHandler(res, 200, {
+          message: 'Article successfully unflagged',
+          articleId: article.article_id,
+        });
+      }
+
+      return next(new CustomError(500, 'Error unflagging article'));
+
+      // console.log(`article comment: ${JSON.stringify(article)}`);
+    } catch (error) {
+      // console.log(`error creating user: ${error.message}`);
+      if (error.message.indexOf('not found') >= 0) {
+        return next(new CustomError(404, 'Article not found'));
       }
 
       return next(error);
